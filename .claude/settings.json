@@ -1,6 +1,38 @@
 {
+  "model": "opusplan",
   "permissions": {
-    "ask": ["Bash(git push*)", "Bash(npm install*)"],
-    "deny": ["Read(.env)", "Read(.env.*)", "Read(**/.env)", "Read(**/.env.*)"]
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npx vitest *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git switch *)",
+      "Bash(git pull *)",
+      "Bash(git add *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr merge *)"
+    ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git push*)",
+      "Bash(npm install*)",
+      "Bash(npm i *)",
+      "Bash(npm uninstall *)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(!.env.example)",
+      "Edit(.env)",
+      "Edit(.env.*)",
+      "Edit(!.env.example)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)"
+    ]
   }
 }
