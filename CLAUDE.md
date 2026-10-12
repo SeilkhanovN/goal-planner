@@ -27,8 +27,11 @@ Vitest runs with no config file. Test files sit next to their source as `*.test.
 - Whenever you show me a plan, in plan mode or not, use the plan format in
   .claude/skills/task/SKILL.md.
 - Every change, even one made without /task, ends with steps 4 and 5 of
-  .claude/skills/task/SKILL.md: check, fix, review, commit, pull request, merge.
-- Use one branch per task. Never commit to main directly and never force-push.
+  .claude/skills/task/SKILL.md: check, fix, review, commit, push.
+- Before writing any code, pull the latest main (git switch main, git pull), and create any
+  branch from it.
+- Work directly on main, or on a branch with a pull request when I ask for one. Never
+  force-push. Never wait for CI to finish, and never merge a pull request without my OK.
 - The site is English only for now.
 
 ## Engine (`src/lib/engine/`)

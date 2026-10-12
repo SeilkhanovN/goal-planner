@@ -12,9 +12,12 @@ without asking me.
 
 - Read TASKS.md. Use task $ARGUMENTS, or the first task under "Ready" if none is given.
   If "Ready" is empty, tell me and stop.
-- Make sure the working tree is clean, then run git switch main and git pull. If there are
-  uncommitted changes, stop and ask me.
-- Create the branch feat/<task-id>-<short-name>, for example feat/T-005-loan-card.
+- Make sure the working tree is clean, then always run git switch main and git pull to get
+  the latest main before writing any code. If there are uncommitted changes, stop and ask
+  me. If the pull fails or has conflicts, stop and tell me.
+- Work directly on main by default. If I ask for a branch or pull request (for example
+  "/task T-005 with a PR"), create the branch feat/<task-id>-<short-name> instead, for
+  example feat/T-005-loan-card.
 - Move the task to "In progress" in TASKS.md.
 
 ## 2. Plan, by size
@@ -73,10 +76,13 @@ Plan: <task id and title>
   review found and fixed, and anything I should know.
 - Commit with a Conventional Commits message, for example
   "feat: add loan comparison card (T-005)". I'll approve the commit.
-- Then, without asking: push the branch, open a pull request with gh pr create (title =
-  the commit message, body = the summary), and wait for CI with gh pr checks --watch. If
-  the repo has no CI checks, skip the waiting.
-- If CI passes: run gh pr merge --squash --delete-branch, then git switch main and
-  git pull. Tell me it's merged.
-- If CI fails: fix it using the rules in step 4, commit the fix (I'll approve), push, and
-  wait for CI again.
+- Then push. Never wait for CI to finish before ending your turn.
+  - Working on main: push to main and finish. I'll check CI myself.
+  - Working on a branch: push, open a pull request with gh pr create (title = the commit
+    message, body = the summary), then finish. Optionally start gh pr checks --watch as a
+    background command so you are notified later; when it ends, tell me either "CI
+    passed, ready to merge" or what failed. If the repo has no CI checks, skip this.
+- Never merge a pull request on your own. Only after I say so, run
+  gh pr merge --squash --delete-branch, then git switch main and git pull.
+- If CI fails and I ask you to fix it, use the rules in step 4, commit the fix (I'll
+  approve), and push.
