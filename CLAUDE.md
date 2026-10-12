@@ -23,9 +23,13 @@ Vitest runs with no config file. Test files sit next to their source as `*.test.
 
 ## Workflow
 
-- Run `npm run check` before saying a task is done.
-- Write tests for calculation logic.
-- Use one branch per task.
+- Tasks live in TASKS.md. Add them with /add-task and build them with /task.
+- Whenever you show me a plan, in plan mode or not, use the plan format in
+  .claude/skills/task/SKILL.md.
+- Every change, even one made without /task, ends with steps 4 and 5 of
+  .claude/skills/task/SKILL.md: check, fix, review, commit, pull request, merge.
+- Use one branch per task. Never commit to main directly and never force-push.
+- The site is English only for now.
 
 ## Engine (`src/lib/engine/`)
 
