@@ -20,7 +20,10 @@ describe("monthlySavingNeeded", () => {
   });
 
   it("needs less each month when savings earn a return", () => {
-    expectAbout(monthlySavingNeeded({ ...car, yearlyReturn: 0.145 }), 446_006.97);
+    expectAbout(
+      monthlySavingNeeded({ ...car, yearlyReturn: 0.145 }),
+      446_006.97,
+    );
   });
 
   it("accounts for existing savings, return and price growth", () => {
@@ -30,7 +33,10 @@ describe("monthlySavingNeeded", () => {
       yearlyReturn: 0.11,
       yearlyPriceGrowth: 0.08,
     };
-    expectAbout(priceAtDate(goal.price, goal.months, goal.yearlyPriceGrowth), 9_934_536);
+    expectAbout(
+      priceAtDate(goal.price, goal.months, goal.yearlyPriceGrowth),
+      9_934_536,
+    );
     expectAbout(monthlySavingNeeded(goal), 451_791);
     expectAbout(monthlySavingNeeded({ ...goal, yearlyReturn: 0.08 }), 463_335);
   });
