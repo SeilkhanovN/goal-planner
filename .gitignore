@@ -42,3 +42,5 @@ next-env.d.ts
 
 # eslint
 .eslintcache
+
+goal-planner-spec.md
