@@ -19,14 +19,6 @@ Done when:
 
 ## Ready
 
-### T-009 · Home page headline and text · S
-
-What: The home page gets the headline "Plan your purchase without a loan", a one-sentence explanation and the Start planning button. Its texts come from the same single text file as the planner.
-Done when:
-
-- The home page shows the headline, one sentence (for example "Find out how much to save each month for a big purchase, instead of taking a loan.") and a Start planning button that opens the planner.
-- No text is hard-coded in the home page.
-
 ### T-010 · All assumptions in one file · M
 
 What: Every number the plan relies on moves into one dated, versioned data file, using the proposed values below. The planner does not use them yet, so nothing on screen changes. A test checks that the file is complete and sensible.
@@ -207,3 +199,4 @@ Done when:
 - T-006 · Document the engine and tests in CLAUDE.md (2026-10-09): expanded CLAUDE.md with engine and test details.
 - T-007 · Add lightweight quality checks (2026-10-12): set up Prettier, ESLint config, npm scripts, and CI.
 - T-008 · Planner page with the simple calculation (2026-10-13): the planner now has a price, date and savings form that shows the monthly amount for plain saving (no interest, no price rise), with input checks and all texts in one file.
+- T-009 · Home page headline and text (2026-10-13): the home page now says "Plan your purchase without a loan" with a one-sentence explanation, and its texts come from the shared text file.

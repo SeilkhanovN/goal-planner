@@ -1,4 +1,10 @@
 export const en = {
+  home: {
+    headline: "Plan your purchase without a loan",
+    intro:
+      "Find out how much to save each month for a big purchase, instead of taking a loan.",
+    start: "Start planning",
+  },
   planner: {
     title: "Plan your goal",
     priceLabel: "Price today (₸)",
