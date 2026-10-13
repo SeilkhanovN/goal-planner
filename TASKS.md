@@ -19,17 +19,6 @@ Done when:
 
 ## Ready
 
-### T-008 · Planner page with the simple calculation · M
-
-What: The planner page (now "Coming soon") gets a form with the price today in tenge, the target month and year, and the savings already set aside. Next to it the plan updates as you type: the price at the target date and the amount to save each month, using the calculation we already have with fixed middle-case numbers (11% a year return, 8% a year price growth). Every on-screen text lives in one text file so it can be translated later.
-Done when:
-
-- Price ₸8,851,400, a target 18 months ahead and savings ₸1,000,000 show "18 months", a price at the date of about ₸9.93m (9,934,536) and about ₸452,000 a month (451,791).
-- ₸1,000,000 in 1 month with no savings shows ₸1,006,434 a month (GT-09).
-- Blank savings count as 0. A price outside ₸10,000–₸5bn, a non-number, or a target month that is this month, in the past, or more than 360 months ahead shows an error under the field and no plan.
-- Amounts show rounded to the nearest ₸1,000 (millions as ₸9.93m) and update as you type.
-- No user-facing text is hard-coded in the planner page, and npm run check passes.
-
 ### T-009 · Home page headline and text · S
 
 What: The home page gets the headline "Plan your purchase without a loan", a one-sentence explanation and the Start planning button. Its texts come from the same single text file as the planner.
@@ -40,13 +29,13 @@ Done when:
 
 ### T-010 · All assumptions in one file · M
 
-What: Every number the plan relies on moves into one dated, versioned data file, using the proposed values below. The planner reads its 11% return and 8% price growth from it, so nothing on screen changes. A test checks that the file is complete and sensible.
+What: Every number the plan relies on moves into one dated, versioned data file, using the proposed values below. The planner does not use them yet, so nothing on screen changes. A test checks that the file is complete and sensible.
 Done when:
 
 - The file has a version and a date, and lists the asset types with yearly returns bad / middle / good and the fall in the bad case: Islamic deposit in tenge 8 / 11 / 13.5% (fall 0%), Islamic deposit in dollars 1 / 2 / 3% (0%), sukuk fund 3.5 / 4.5 / 6% (10%), Shariah equity fund 5 / 7 / 11% (25%).
 - It also holds: price growth 8% (tenge goals) and 3% (dollar goals), dollar rate ₸442.57, tenge weakening 5% a year, tenge shock 15%, bank loan rate 25%, safety rule limits of 12 and 36 months, and the strategy mixes (Cautious 100% Islamic deposit; Balanced 60% deposit, 20% sukuk, 20% equity; Growth 20% deposit, 20% sukuk, 60% equity; deposit in dollars for dollar goals).
 - A test fails if a value is missing or negative, if a mix does not add up to 100%, or if bad is above middle or middle above good.
-- The planner shows the same numbers as in T-008, and no other code contains these numbers.
+- The planner still shows the plain-saving numbers from T-008, and no other code contains these numbers.
 
 ### T-011 · Goal type buttons · S
 
@@ -54,21 +43,30 @@ What: Seven buttons at the top of the form: car, Hajj or Umrah, wedding, home de
 Done when:
 
 - All seven buttons show, with car selected at the start.
-- Picking one changes the wording, for example "By April 2028 the car will cost about ₸9.93m" becomes "…the wedding will cost…".
+- Picking one changes the wording of the plan, for example "To reach ₸8.85m for the car by April 2028" becomes "…for the wedding…".
 - The wording for each goal comes from the text file.
 
-### T-012 · Normal and safe monthly amounts · M
+### T-026 · Optional price rise · M
 
-What: The plan shows two amounts at the top for saving in an Islamic deposit in tenge (the Cautious strategy): the normal (middle) case and the safe (bad) case. The good case is calculated too, using the returns from the assumptions file.
+What: A "Price rise a year (%)" field, left at 0. When filled in, the plan saves for the higher price at the date and shows both today's price and the price at the date, so it is clear why the monthly amount is higher. The spec's later examples assume a price rise of 8% a year (3% for dollar goals), so check those with this field set.
 Done when:
 
-- Car ₸8,851,400, 18 months, savings ₸1,000,000 shows "Save ₸452,000 a month, normal case" (451,791) and "Save ₸463,000 a month, safe if things go badly" (463,335) (GT-04).
+- ₸10,000,000 in 20 months with a price rise of 8%: price at the date about ₸11.37m and about ₸568,000 a month; with the field blank or 0 it is ₸500,000 a month.
+- The plan says "prices are assumed to rise 8% a year" when the field is filled in.
+- A non-number or a rise outside −50% to 100% shows an error under the field.
+
+### T-012 · Where the savings are kept: normal and safe amounts · M
+
+What: A choice "Where will you keep the money?": "Just set aside" (no growth, selected at the start) or "Islamic deposit in tenge" (the Cautious strategy). With the deposit, the plan shows two amounts at the top: the normal (middle) case and the safe (bad) case. The good case is calculated too, using the returns from the assumptions file. "Just set aside" keeps the plain numbers from T-008.
+Done when:
+
+- Car ₸8,851,400, 18 months, savings ₸1,000,000: "Just set aside" shows ₸436,000 a month; the deposit with a price rise of 8% shows "Save ₸452,000 a month, normal case" (451,791) and "Save ₸463,000 a month, safe if things go badly" (463,335) (GT-04).
 - The safe amount is shown before the good case, and tests confirm the monthly amount is highest in the bad case and lowest in the good case.
 - The wording calls the cases bad, middle and good (shown as "safe" and "normal"), never "expected".
 
 ### T-013 · Strategy engine with the safety rule · M
 
-What: A new engine adds money month by month for the three example strategies, switching to safer mixes as the date gets close (Cautious only in the last 12 months, at most Balanced in the last 36). In the bad case, risky holdings fall and the tenge shock applies in the last month before the money moves to Cautious. Tenge goals only. The planner switches to it for the Cautious numbers and must show the same numbers as before. If the spec's numbers below cannot be reproduced, stop and report instead of changing them.
+What: A new engine adds money month by month for the three example strategies, switching to safer mixes as the date gets close (Cautious only in the last 12 months, at most Balanced in the last 36). In the bad case, risky holdings fall and the tenge shock applies in the last month before the money moves to Cautious. Tenge goals only. The planner does not use it yet, so nothing changes on screen. If the spec's numbers below cannot be reproduced, stop and report instead of changing them.
 Done when:
 
 - Car ₸8,851,400, 18 months, savings ₸1,000,000, Balanced, today October 2026: price at the date ₸9,934,536; monthly middle ₸451,784, bad ₸490,367, good ₸442,402; Balanced in months 1–6 and Cautious in months 7–18 (GT-03).
@@ -79,11 +77,11 @@ Done when:
 
 ### T-014 · Three strategy cards · M
 
-What: Below the amounts, three cards side by side (Cautious, Balanced, Growth) show the normal and safe monthly amounts and a one-line description of the mix. Cautious is open first and none is labelled "recommended". Clicking a card selects it, and the selected strategy drives the amounts at the top. A card shows a note when the safety rule changes its mix.
+What: Below the amounts, cards side by side (Just set aside, Cautious, Balanced, Growth) replace the choice from T-012. The three strategy cards show the normal and safe monthly amounts and a one-line description of the mix. Cautious is the open strategy and none is labelled "recommended". Clicking a card selects it, and the selected card drives the amounts at the top. A card shows a note when the safety rule changes its mix.
 Done when:
 
-- Car ₸8,851,400, 18 months, savings ₸1,000,000: Cautious shows ₸452,000 normal and ₸463,000 safe; Balanced and Growth show ₸452,000 normal and ₸490,000 safe, and Growth says it acts like Balanced when under 3 years remain.
-- Cautious is selected at the start, and clicking another card changes the top amounts.
+- Car ₸8,851,400, 18 months, savings ₸1,000,000, price rise 8%: Cautious shows ₸452,000 normal and ₸463,000 safe; Balanced and Growth show ₸452,000 normal and ₸490,000 safe, and Growth says it acts like Balanced when under 3 years remain.
+- "Just set aside" is selected at the start, and clicking another card changes the top amounts.
 - No card or text says "recommended" or "best".
 
 ### T-015 · Dollar goals · M
@@ -91,7 +89,7 @@ Done when:
 What: A ₸/$ switch next to the price. A dollar price is converted to tenge at the assumed dollar rate, which weakens the tenge 5% a year. Dollar goals are saved in dollar assets with 3% price growth, and the bad case includes the 15% tenge shock where it applies. Hajj or Umrah starts in dollars and other goals start in tenge. Savings and budget are still entered in tenge.
 Done when:
 
-- Car $20,000, 18 months, no savings, Cautious: price at the date ₸9,955,240; monthly middle ₸526,608, bad ₸530,358 (GT-05).
+- Car $20,000, 18 months, no savings, Cautious, price rise 3%: price at the date ₸9,955,240; monthly middle ₸526,608, bad ₸530,358 (GT-05).
 - A dollar price outside $20–$10m shows an error under the field.
 - Switching currency keeps the other fields and updates the plan; picking Hajj or Umrah selects $.
 
@@ -100,8 +98,8 @@ Done when:
 What: An optional monthly budget field. With a budget, the plan says "on track" or "short by X" for the selected strategy in the middle case. When savings already cover the goal it says on track and shows the surplus.
 Done when:
 
-- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, Balanced shows "short by ₸1.0m" (gap −₸1,004,657) (GT-03).
-- Same car with savings ₸10,000,000 and Cautious shows ₸0 a month and "on track" with a surplus of about ₸1.76m (₸1,760,039) (GT-08).
+- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, Balanced, price rise 8% shows "short by ₸1.0m" (gap −₸1,004,657) (GT-03).
+- Same car with savings ₸10,000,000, Cautious and price rise 8% shows ₸0 a month and "on track" with a surplus of about ₸1.76m (₸1,760,039) (GT-08).
 - A blank or 0 budget hides the check; a negative or non-number shows an error under the field.
 
 ### T-017 · Three fixes when the budget is short · M
@@ -109,7 +107,7 @@ Done when:
 What: When the budget falls short, three buttons offer a fix: save more each month, buy later, or aim for a lower price. Clicking one updates the form and the plan shows "on track".
 Done when:
 
-- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, Balanced shows "Save ₸452,000", "Buy in July 2028" (21 months needed) and "Aim for ₸7.96m" (affordable today ₸7,956,278) (GT-03).
+- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, Balanced, price rise 8% shows "Save ₸452,000", "Buy in July 2028" (21 months needed) and "Aim for ₸7.96m" (affordable today ₸7,956,278) (GT-03).
 - Clicking any of the three shows "on track".
 - If the goal cannot be reached within 360 months on this budget, only the "save more" fix is offered, with a message saying so.
 
@@ -194,6 +192,10 @@ Done when:
 - Remember the last inputs on this device, with a "clear" button.
 - Strict content security policy and browser error reporting without personal data.
 - Phone layout where the form and plan stack.
+- A comma typed as a decimal mark (for example "1,5") is read as a thousands separator; decide how to treat commas.
+- The planner form is not in the first page the server sends, only "Loading…" until the browser starts it; show the form straight away.
+- Group the month and year fields under one label for screen readers (covered by T-024).
+- The month count can shift if a tab stays open across the end of a month.
 
 ## Done
 
@@ -204,3 +206,4 @@ Done when:
 - T-005 · Document the project for Claude Code (2026-10-09): added CLAUDE.md.
 - T-006 · Document the engine and tests in CLAUDE.md (2026-10-09): expanded CLAUDE.md with engine and test details.
 - T-007 · Add lightweight quality checks (2026-10-12): set up Prettier, ESLint config, npm scripts, and CI.
+- T-008 · Planner page with the simple calculation (2026-10-13): the planner now has a price, date and savings form that shows the monthly amount for plain saving (no interest, no price rise), with input checks and all texts in one file.
