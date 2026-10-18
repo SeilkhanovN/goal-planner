@@ -32,6 +32,13 @@ Vitest runs with no config file. Test files sit next to their source as `*.test.
   branch from it.
 - Work directly on main, or on a branch with a pull request when I ask for one. Never
   force-push. Never wait for CI to finish, and never merge a pull request without my OK.
+- Two people share main. After a commit is approved, run git pull --rebase; if new
+  changes came in, run npm run check again, then push right away. If the push is rejected,
+  pull --rebase and push again.
+- If a rebase conflicts, keep both people's changes. Ask me only if it is unclear which
+  version is right.
+- To undo a bad change, always use git revert. Never use git reset on pushed commits,
+  and never force-push.
 - The site is English only for now.
 
 ## Engine (`src/lib/engine/`)

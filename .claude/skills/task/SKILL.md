@@ -77,7 +77,13 @@ Plan: <task id and title>
 - Commit with a Conventional Commits message, for example
   "feat: add loan comparison card (T-005)". I'll approve the commit.
 - Then push. Never wait for CI to finish before ending your turn.
-  - Working on main: push to main and finish. I'll check CI myself.
+  - Working on main (two people share main): right after my commit is approved, run
+    git pull --rebase to get the other person's changes. If new changes came in, run
+    npm run check again before pushing (fix problems with the rules in step 4). If there
+    is a conflict, resolve it keeping both people's changes, and ask me only if it is
+    unclear which version is right. Then push to main right away. If the push is
+    rejected, run git pull --rebase and push again (check again if new changes came in).
+    Then finish. I'll check CI myself.
   - Working on a branch: push, open a pull request with gh pr create (title = the commit
     message, body = the summary), then finish. Optionally start gh pr checks --watch as a
     background command so you are notified later; when it ends, tell me either "CI
@@ -86,3 +92,5 @@ Plan: <task id and title>
   gh pr merge --squash --delete-branch, then git switch main and git pull.
 - If CI fails and I ask you to fix it, use the rules in step 4, commit the fix (I'll
   approve), and push.
+- To undo a bad change that is already pushed, always use git revert. Never use git reset
+  on pushed commits, and never force-push.
