@@ -64,6 +64,36 @@ export const en = {
     ) => `${monthly} × ${months} + ${saved} already saved ≈ ${total}`,
     assumption:
       "This plan assumes no interest on your savings and no price rise. You simply set the money aside, in a bank account or even in cash.",
+    assumptionGrowth: (rate: string) =>
+      `This plan assumes your money grows by ${rate} a year, as an example. It assumes no price rise.`,
+    paidIn: (monthly: string, months: string, total: string) =>
+      `${monthly} × ${months} ≈ ${total} paid in`,
+    paidInWithSaved: (
+      monthly: string,
+      months: string,
+      total: string,
+      saved: string,
+    ) =>
+      `${monthly} × ${months} ≈ ${total} paid in, plus ${saved} already saved`,
+    growthCovers: (rate: string) =>
+      `The assumed growth of ${rate} a year would cover the rest.`,
+    lossCovered: (rate: string) =>
+      `With an assumed loss of ${rate} a year, you need to save more to make up for it.`,
+    whatIf: {
+      title: "If your money grows by…",
+      pickHint: "Pick a row to use it in your plan.",
+      rowLabel: (rate: string) => `${rate} a year`,
+      cashHint: "cash or a plain account",
+      ownRowLabel: (rate: string) => `Your own rate: ${rate} a year`,
+      ownRateLabel: "Your own yearly rate (%)",
+      ownRatePlaceholder: "7.5",
+      ownRateErrors: {
+        notNumber: "Enter a number, for example 7.5.",
+        outOfRange: "Enter a rate from −50 to 100.",
+      },
+      notForecast:
+        "These percentages are examples, not forecasts. Nobody knows what any investment will earn, and real results can be lower, including losses.",
+    },
     loading: "Loading…",
   },
 };

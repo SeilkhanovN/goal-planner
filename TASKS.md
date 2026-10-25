@@ -20,16 +20,6 @@ Done when:
 
 ## Ready
 
-### T-010 · What-if growth rates · M
-
-What: Under the plan, a table "If your money grows by…" shows the monthly amount to save for yearly growth of −10%, 0% (cash or a plain account), 5%, 10%, 15% and 20%, plus a field for your own rate. Clicking a row makes the plan use that rate; 0% is selected at the start. The page says plainly that the percentages are examples, not forecasts, and that nobody knows what an investment will earn, and no row is named after a product (no stocks, sukuk or deposits).
-Done when:
-
-- ₸10,000,000 in 20 months with nothing saved shows −10% ₸543,000, 0% ₸500,000, 5% ₸481,000, 10% ₸463,000, 15% ₸447,000 and 20% ₸431,000 a month.
-- Typing your own yearly rate between −50% and 100% adds a row labelled "your own rate"; a non-number or a rate outside that range shows an error under the field.
-- A higher growth rate never needs a higher monthly amount than a lower one, and 0% equals the plain-saving amount (tests).
-- The "not a forecast" sentence and the list of rates come from the text file, with no product names anywhere.
-
 ### T-011 · Goal type buttons · S
 
 What: Seven buttons at the top of the form: car, Hajj or Umrah, wedding, home deposit, education, emergency fund and other. The chosen goal changes the wording of the plan.
@@ -116,6 +106,10 @@ Done when:
 
 ## Ideas
 
+- The production build now fails with "Your version of Next.js is affected by a known security vulnerability" (Next.js 16.4.0), which will also turn CI red; decide how and when to upgrade Next.js.
+- Clearing the own-rate field silently switches the plan back to the last clicked row; decide what should happen.
+- "Your savings already cover the goal" also shows when only the assumed growth covers it (for example ₸9.9m saved, ₸10m goal, 20% growth); reword or show it only at 0%.
+- A very small own rate (for example 0.001%) is shown as "0%" in its row label.
 - Remember the last inputs on this device, with a "clear" button.
 - Strict content security policy and browser error reporting without personal data.
 - Phone layout where the form and plan stack.
@@ -198,3 +192,4 @@ Done when:
 - T-007 · Add lightweight quality checks (2026-10-12): set up Prettier, ESLint config, npm scripts, and CI.
 - T-008 · Planner page with the simple calculation (2026-10-13): the planner now has a price, date and savings form that shows the monthly amount for plain saving (no interest, no price rise), with input checks and all texts in one file.
 - T-009 · Home page headline and text (2026-10-13): the home page now says "Plan your purchase without a loan" with a one-sentence explanation, and its texts come from the shared text file.
+- T-010 · What-if growth rates (2026-10-25): under the plan, a table shows the monthly amount for yearly growth of −10%, 0%, 5%, 10%, 15% and 20% plus your own rate, and clicking a row changes the plan, with a note that these are examples, not forecasts.

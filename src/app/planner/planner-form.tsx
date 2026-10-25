@@ -3,13 +3,30 @@
 import { use, useState } from "react";
 import { io } from "next/cache";
 import { en as text } from "@/content/en";
-import { formatMonthly, formatTotal } from "@/lib/planner/format";
-import { buildPlan } from "@/lib/planner/plan";
+import {
+  formatMonthly,
+  formatPercent,
+  formatTotal,
+} from "@/lib/planner/format";
+import {
+  buildPlan,
+  monthlyAtGrowth,
+  parseGrowthRate,
+  WHAT_IF_RATES,
+} from "@/lib/planner/plan";
 
 const { planner } = text;
 
 const inputClass =
   "rounded-lg border border-zinc-300 bg-transparent px-3 py-2 dark:border-zinc-700";
+
+function rowClass(selected: boolean): string {
+  return `flex w-full items-center justify-between gap-4 rounded-lg border px-3 py-2 text-left ${
+    selected
+      ? "border-foreground bg-foreground/10"
+      : "border-zinc-300 hover:bg-foreground/5 dark:border-zinc-700"
+  }`;
+}
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
@@ -31,7 +48,22 @@ export function PlannerForm() {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
 
-  const { errors, plan } = buildPlan({ price, savings, month, year }, today);
+  const [selectedPreset, setSelectedPreset] = useState(0);
+  const [ownText, setOwnText] = useState("");
+  const [ownSelected, setOwnSelected] = useState(false);
+
+  const own = parseGrowthRate(ownText);
+  const ownRate = own.kind === "rate" ? own.rate : null;
+  const useOwn = ownSelected && ownRate !== null;
+  const growth = useOwn ? ownRate : selectedPreset;
+  const ownError =
+    own.kind === "error" && planner.whatIf.ownRateErrors[own.error];
+
+  const { errors, plan } = buildPlan(
+    { price, savings, month, year },
+    today,
+    growth,
+  );
 
   const priceError = errors.price && planner.errors.price[errors.price];
   const savingsError = errors.savings && planner.errors.savings[errors.savings];
@@ -145,10 +177,13 @@ export function PlannerForm() {
             <p className="text-3xl font-semibold tracking-tight">
               {planner.saveMonthly(formatMonthly(plan.monthlySaving))}
             </p>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              {plan.monthlySaving === 0
-                ? planner.alreadyCovered
-                : plan.saved > 0
+            {plan.monthlySaving === 0 ? (
+              <p className="text-zinc-600 dark:text-zinc-400">
+                {planner.alreadyCovered}
+              </p>
+            ) : plan.growth === 0 ? (
+              <p className="text-zinc-600 dark:text-zinc-400">
+                {plan.saved > 0
                   ? planner.breakdownWithSaved(
                       formatMonthly(plan.monthlySaving),
                       planner.monthsAway(plan.months),
@@ -160,9 +195,107 @@ export function PlannerForm() {
                       planner.monthsAway(plan.months),
                       formatTotal(plan.goalAmount),
                     )}
-            </p>
+              </p>
+            ) : (
+              <>
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  {plan.saved > 0
+                    ? planner.paidInWithSaved(
+                        formatMonthly(plan.monthlySaving),
+                        planner.monthsAway(plan.months),
+                        formatTotal(plan.monthlySaving * plan.months),
+                        formatTotal(plan.saved),
+                      )
+                    : planner.paidIn(
+                        formatMonthly(plan.monthlySaving),
+                        planner.monthsAway(plan.months),
+                        formatTotal(plan.monthlySaving * plan.months),
+                      )}
+                </p>
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  {plan.growth > 0
+                    ? planner.growthCovers(formatPercent(plan.growth))
+                    : planner.lossCovered(formatPercent(-plan.growth))}
+                </p>
+              </>
+            )}
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {planner.assumption}
+              {plan.growth === 0
+                ? planner.assumption
+                : planner.assumptionGrowth(formatPercent(plan.growth))}
+            </p>
+
+            <h3 className="mt-4 text-lg font-semibold">
+              {planner.whatIf.title}
+            </h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              {planner.whatIf.pickHint}
+            </p>
+            <ul className="flex flex-col gap-2">
+              {WHAT_IF_RATES.map((rate) => (
+                <li key={rate}>
+                  <button
+                    type="button"
+                    aria-pressed={!useOwn && rate === selectedPreset}
+                    onClick={() => {
+                      setSelectedPreset(rate);
+                      setOwnSelected(false);
+                    }}
+                    className={rowClass(!useOwn && rate === selectedPreset)}
+                  >
+                    <span>
+                      {planner.whatIf.rowLabel(formatPercent(rate))}
+                      {rate === 0 && ` (${planner.whatIf.cashHint})`}
+                    </span>
+                    <span className="font-medium">
+                      {formatMonthly(monthlyAtGrowth(plan, rate))}
+                    </span>
+                  </button>
+                </li>
+              ))}
+              {ownRate !== null && (
+                <li>
+                  <button
+                    type="button"
+                    aria-pressed={useOwn}
+                    onClick={() => setOwnSelected(true)}
+                    className={rowClass(useOwn)}
+                  >
+                    <span>
+                      {planner.whatIf.ownRowLabel(formatPercent(ownRate))}
+                    </span>
+                    <span className="font-medium">
+                      {formatMonthly(monthlyAtGrowth(plan, ownRate))}
+                    </span>
+                  </button>
+                </li>
+              )}
+            </ul>
+            <div>
+              <label htmlFor="own-rate" className="mb-1 block font-medium">
+                {planner.whatIf.ownRateLabel}
+              </label>
+              <input
+                id="own-rate"
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                className={`${inputClass} w-40`}
+                placeholder={planner.whatIf.ownRatePlaceholder}
+                value={ownText}
+                onChange={(event) => {
+                  setOwnText(event.target.value);
+                  if (parseGrowthRate(event.target.value).kind === "rate") {
+                    setOwnSelected(true);
+                  }
+                }}
+                aria-invalid={ownError ? true : undefined}
+                aria-describedby={ownError ? "own-rate-error" : undefined}
+              />
+              <FieldError id="own-rate-error" message={ownError || undefined} />
+            </div>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              {planner.whatIf.notForecast}
             </p>
           </>
         ) : (

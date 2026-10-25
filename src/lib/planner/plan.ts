@@ -25,12 +25,58 @@ export type PlannerErrors = {
   date?: DateError;
 };
 
+/** Yearly growth rates shown in the what-if table, as decimals. */
+export const WHAT_IF_RATES = [-0.1, 0, 0.05, 0.1, 0.15, 0.2];
+
+export const MIN_OWN_RATE_PERCENT = -50;
+export const MAX_OWN_RATE_PERCENT = 100;
+
 export type Plan = {
   months: number;
   goalAmount: number;
   saved: number;
+  /** Assumed yearly growth of the savings, as a decimal. */
+  growth: number;
   monthlySaving: number;
 };
+
+export type GrowthRateResult =
+  | { kind: "blank" }
+  | { kind: "error"; error: "notNumber" | "outOfRange" }
+  | { kind: "rate"; rate: number };
+
+/** Reads a typed yearly rate in percent ("7.5", "7,5" or "10%") into a decimal. */
+export function parseGrowthRate(text: string): GrowthRateResult {
+  const cleaned = text
+    .replace(/\s/g, "")
+    .replace(/^−/, "-")
+    .replace(/^−/, "-")
+    .replace(/%$/, "")
+    .replace(",", ".");
+  if (cleaned === "") return { kind: "blank" };
+  if (!/^-?\d+(\.\d+)?$/.test(cleaned)) {
+    return { kind: "error", error: "notNumber" };
+  }
+  const percent = Number(cleaned);
+  if (percent < MIN_OWN_RATE_PERCENT || percent > MAX_OWN_RATE_PERCENT) {
+    return { kind: "error", error: "outOfRange" };
+  }
+  return { kind: "rate", rate: percent / 100 };
+}
+
+/** Monthly saving needed if the savings grow by `rate` a year. */
+export function monthlyAtGrowth(
+  plan: Pick<Plan, "months" | "goalAmount" | "saved">,
+  rate: number,
+): number {
+  return monthlySavingNeeded({
+    price: plan.goalAmount,
+    months: plan.months,
+    savings: plan.saved,
+    yearlyReturn: rate,
+    yearlyPriceGrowth: 0,
+  });
+}
 
 /** No errors and no plan means the form is still waiting for a price or a date. */
 export type PlannerResult = { errors: PlannerErrors; plan: Plan | null };
@@ -53,6 +99,7 @@ export function monthsBetween(from: YearMonth, to: YearMonth): number {
 export function buildPlan(
   input: PlannerInput,
   today: YearMonth,
+  growth = 0,
 ): PlannerResult {
   const errors: PlannerErrors = {};
 
@@ -92,20 +139,13 @@ export function buildPlan(
     return { errors, plan: null };
   }
 
-  const savedSoFar = savings.kind === "number" ? savings.value : 0;
+  const base = {
+    months,
+    goalAmount: price.value,
+    saved: savings.kind === "number" ? savings.value : 0,
+  };
   return {
     errors,
-    plan: {
-      months,
-      goalAmount: price.value,
-      saved: savedSoFar,
-      monthlySaving: monthlySavingNeeded({
-        price: price.value,
-        months,
-        savings: savedSoFar,
-        yearlyReturn: 0,
-        yearlyPriceGrowth: 0,
-      }),
-    },
+    plan: { ...base, growth, monthlySaving: monthlyAtGrowth(base, growth) },
   };
 }

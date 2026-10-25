@@ -4,6 +4,12 @@ function roundToThousand(amount: number): number {
   return Math.round(amount / 1000) * 1000;
 }
 
+/** A yearly rate as a percentage with a proper minus sign, such as −10% or 7.5%. */
+export function formatPercent(rate: number): string {
+  const percent = Math.round(rate * 10_000) / 100;
+  return `${percent < 0 ? "−" : ""}${Math.abs(percent)}%`;
+}
+
 /** A monthly amount in full, rounded to the nearest ₸1,000. */
 export function formatMonthly(amount: number): string {
   return `₸${grouped.format(roundToThousand(amount))}`;
