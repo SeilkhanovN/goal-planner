@@ -1,8 +1,7 @@
 export const en = {
   home: {
     headline: "Plan your purchase without a loan",
-    intro:
-      "Find out how much to save each month for a big purchase, instead of taking a loan.",
+    intro: "See how much to save each month instead of taking a loan.",
     start: "Start planning",
   },
   planner: {
@@ -14,8 +13,8 @@ export const en = {
     monthAriaLabel: "Month",
     yearPlaceholder: "Year",
     yearAriaLabel: "Year",
-    savingsLabel: "Already saved (₸, optional)",
-    savingsPlaceholder: "0",
+    savingsLabel: "Already saved (₸)",
+    savingsPlaceholder: "Optional",
     monthNames: [
       "January",
       "February",
@@ -34,26 +33,26 @@ export const en = {
       count === 1 ? "1 month" : `${count} months`,
     errors: {
       price: {
-        notNumber: "Enter a number, for example 8 850 000.",
-        priceTooLow: "The price must be at least ₸10,000.",
-        priceTooHigh: "The price can be at most ₸5bn.",
+        notNumber: "Enter a number.",
+        priceTooLow: "Minimum ₸10,000.",
+        priceTooHigh: "Maximum ₸5bn.",
       },
       savings: {
-        notNumber: "Enter a number, for example 1 000 000, or leave it blank.",
-        negative: "Savings can't be negative.",
+        notNumber: "Enter a number or leave blank.",
+        negative: "Can't be negative.",
       },
       date: {
-        notNumber: "Enter a four-digit year, for example 2028.",
-        dateNotLater: "Choose a month after this one.",
-        dateTooFar: "Choose a date within 30 years (360 months).",
+        notNumber: "Pick a year.",
+        dateNotLater: "Pick a later month.",
+        dateTooFar: "Within 30 years only.",
       },
     },
     planTitle: "Your plan",
-    planHint: "Enter a price and a date to see your plan.",
+    planHint: "Enter a price and a date.",
     goalByDate: (amount: string, date: string) =>
       `To reach ${amount} by ${date}`,
     saveMonthly: (amount: string) => `Save ${amount} a month`,
-    alreadyCovered: "Your savings already cover the goal.",
+    alreadyCovered: "Savings already cover the goal.",
     breakdown: (monthly: string, months: string, total: string) =>
       `${monthly} × ${months} ≈ ${total}`,
     breakdownWithSaved: (
@@ -61,11 +60,7 @@ export const en = {
       months: string,
       saved: string,
       total: string,
-    ) => `${monthly} × ${months} + ${saved} already saved ≈ ${total}`,
-    assumption:
-      "This plan assumes no interest on your savings and no price rise. You simply set the money aside, in a bank account or even in cash.",
-    assumptionGrowth: (rate: string) =>
-      `This plan assumes your money grows by ${rate} a year, as an example. It assumes no price rise.`,
+    ) => `${monthly} × ${months} + ${saved} saved ≈ ${total}`,
     paidIn: (monthly: string, months: string, total: string) =>
       `${monthly} × ${months} ≈ ${total} paid in`,
     paidInWithSaved: (
@@ -73,26 +68,23 @@ export const en = {
       months: string,
       total: string,
       saved: string,
-    ) =>
-      `${monthly} × ${months} ≈ ${total} paid in, plus ${saved} already saved`,
-    growthCovers: (rate: string) =>
-      `The assumed growth of ${rate} a year would cover the rest.`,
-    lossCovered: (rate: string) =>
-      `With an assumed loss of ${rate} a year, you need to save more to make up for it.`,
+    ) => `${monthly} × ${months} ≈ ${total} paid in, plus ${saved} saved`,
     whatIf: {
       title: "If your money grows by…",
-      pickHint: "Pick a row to use it in your plan.",
+      pickHint: "Pick one for your plan.",
       rowLabel: (rate: string) => `${rate} a year`,
-      cashHint: "cash or a plain account",
+      cashHint: "plain saving",
+      growthLine: (amount: string, share: string) =>
+        `Growth: ${amount} (${share})`,
       ownRowLabel: (rate: string) => `Your own rate: ${rate} a year`,
-      ownRateLabel: "Your own yearly rate (%)",
+      ownRateLabel: "Your own rate (%)",
       ownRatePlaceholder: "7.5",
       ownRateErrors: {
-        notNumber: "Enter a number, for example 7.5.",
-        outOfRange: "Enter a rate from −50 to 100.",
+        notNumber: "Enter a number, like 7.5.",
+        outOfRange: "Use −50 to 100.",
       },
       notForecast:
-        "These percentages are examples, not forecasts. Nobody knows what any investment will earn, and real results can be lower, including losses.",
+        "These rates are examples, not forecasts. Real results can be lower, even losses. Prices are assumed not to rise.",
     },
     loading: "Loading…",
   },

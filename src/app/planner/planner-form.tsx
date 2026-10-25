@@ -6,13 +6,19 @@ import { en as text } from "@/content/en";
 import {
   formatMonthly,
   formatPercent,
+  formatShare,
+  formatSigned,
   formatTotal,
+  groupDigits,
 } from "@/lib/planner/format";
 import {
   buildPlan,
+  growthAdded,
   monthlyAtGrowth,
+  type Plan,
   parseGrowthRate,
   WHAT_IF_RATES,
+  yearOptions,
 } from "@/lib/planner/plan";
 
 const { planner } = text;
@@ -26,6 +32,34 @@ function rowClass(selected: boolean): string {
       ? "border-foreground bg-foreground/10"
       : "border-zinc-300 hover:bg-foreground/5 dark:border-zinc-700"
   }`;
+}
+
+function RowText({
+  label,
+  plan,
+  rate,
+}: {
+  label: string;
+  plan: Plan;
+  rate: number;
+}) {
+  const growth = growthAdded(plan, rate);
+  return (
+    <>
+      <span className="flex flex-col">
+        <span>{label}</span>
+        <span className="text-sm text-zinc-600 dark:text-zinc-400">
+          {planner.whatIf.growthLine(
+            formatSigned(growth),
+            formatShare(growth / plan.goalAmount),
+          )}
+        </span>
+      </span>
+      <span className="font-medium">
+        {formatMonthly(monthlyAtGrowth(plan, rate))}
+      </span>
+    </>
+  );
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -88,7 +122,7 @@ export function PlannerForm() {
             className={`${inputClass} w-full`}
             placeholder={planner.pricePlaceholder}
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
+            onChange={(event) => setPrice(groupDigits(event.target.value))}
             aria-invalid={priceError ? true : undefined}
             aria-describedby={priceError ? "price-error" : undefined}
           />
@@ -122,19 +156,28 @@ export function PlannerForm() {
                 </option>
               ))}
             </select>
-            <input
+            <select
               id="year"
-              type="text"
-              inputMode="numeric"
-              autoComplete="off"
               aria-label={planner.yearAriaLabel}
-              className={`${inputClass} w-28`}
-              placeholder={planner.yearPlaceholder}
+              className={`${inputClass} w-32`}
               value={year}
               onChange={(event) => setYear(event.target.value)}
               aria-invalid={dateError ? true : undefined}
               aria-describedby={dateError ? "date-error" : undefined}
-            />
+            >
+              <option value="" className="bg-background text-foreground">
+                {planner.yearPlaceholder}
+              </option>
+              {yearOptions(today.year).map((option) => (
+                <option
+                  key={option}
+                  value={option}
+                  className="bg-background text-foreground"
+                >
+                  {option}
+                </option>
+              ))}
+            </select>
           </div>
           <FieldError id="date-error" message={dateError} />
           {plan && (
@@ -156,7 +199,7 @@ export function PlannerForm() {
             className={`${inputClass} w-full`}
             placeholder={planner.savingsPlaceholder}
             value={savings}
-            onChange={(event) => setSavings(event.target.value)}
+            onChange={(event) => setSavings(groupDigits(event.target.value))}
             aria-invalid={savingsError ? true : undefined}
             aria-describedby={savingsError ? "savings-error" : undefined}
           />
@@ -213,17 +256,15 @@ export function PlannerForm() {
                       )}
                 </p>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  {plan.growth > 0
-                    ? planner.growthCovers(formatPercent(plan.growth))
-                    : planner.lossCovered(formatPercent(-plan.growth))}
+                  {planner.whatIf.growthLine(
+                    formatSigned(growthAdded(plan, plan.growth)),
+                    formatShare(
+                      growthAdded(plan, plan.growth) / plan.goalAmount,
+                    ),
+                  )}
                 </p>
               </>
             )}
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {plan.growth === 0
-                ? planner.assumption
-                : planner.assumptionGrowth(formatPercent(plan.growth))}
-            </p>
 
             <h3 className="mt-4 text-lg font-semibold">
               {planner.whatIf.title}
@@ -243,13 +284,14 @@ export function PlannerForm() {
                     }}
                     className={rowClass(!useOwn && rate === selectedPreset)}
                   >
-                    <span>
-                      {planner.whatIf.rowLabel(formatPercent(rate))}
-                      {rate === 0 && ` (${planner.whatIf.cashHint})`}
-                    </span>
-                    <span className="font-medium">
-                      {formatMonthly(monthlyAtGrowth(plan, rate))}
-                    </span>
+                    <RowText
+                      label={
+                        planner.whatIf.rowLabel(formatPercent(rate)) +
+                        (rate === 0 ? ` (${planner.whatIf.cashHint})` : "")
+                      }
+                      plan={plan}
+                      rate={rate}
+                    />
                   </button>
                 </li>
               ))}
@@ -261,12 +303,11 @@ export function PlannerForm() {
                     onClick={() => setOwnSelected(true)}
                     className={rowClass(useOwn)}
                   >
-                    <span>
-                      {planner.whatIf.ownRowLabel(formatPercent(ownRate))}
-                    </span>
-                    <span className="font-medium">
-                      {formatMonthly(monthlyAtGrowth(plan, ownRate))}
-                    </span>
+                    <RowText
+                      label={planner.whatIf.ownRowLabel(formatPercent(ownRate))}
+                      plan={plan}
+                      rate={ownRate}
+                    />
                   </button>
                 </li>
               )}

@@ -106,6 +106,8 @@ Done when:
 
 ## Ideas
 
+- Remove the now-unused free-text year handling (the "wait while typing" logic and the "Pick a year." message) in the planner calculation and its tests, since the year is a dropdown.
+- A tab left open past 1 January keeps the old year selected while the year list starts a year later.
 - Clearing the own-rate field silently switches the plan back to the last clicked row; decide what should happen.
 - "Your savings already cover the goal" also shows when only the assumed growth covers it (for example ₸9.9m saved, ₸10m goal, 20% growth); reword or show it only at 0%.
 - A very small own rate (for example 0.001%) is shown as "0%" in its row label.
@@ -192,3 +194,6 @@ Done when:
 - T-008 · Planner page with the simple calculation (2026-10-13): the planner now has a price, date and savings form that shows the monthly amount for plain saving (no interest, no price rise), with input checks and all texts in one file.
 - T-009 · Home page headline and text (2026-10-13): the home page now says "Plan your purchase without a loan" with a one-sentence explanation, and its texts come from the shared text file.
 - T-010 · What-if growth rates (2026-10-25): under the plan, a table shows the monthly amount for yearly growth of −10%, 0%, 5%, 10%, 15% and 20% plus your own rate, and clicking a row changes the plan, with a note that these are examples, not forecasts.
+- T-027 · Year dropdown (2026-10-25): the year is now a dropdown from this year to 30 years ahead, like the month.
+- T-028 · How much the growth adds in each row (2026-10-25): each growth row also shows how much of the goal the growth covers, as an amount and a share (for example ₸736,000, 7% at 10% a year).
+- T-029 · Shorter texts (2026-10-25): the home and planner texts are about a third shorter (124 to 84 words in the 10% example), with the two long "this plan assumes" sentences replaced by one note.

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildPlan,
+  growthAdded,
   monthlyAtGrowth,
   parseGrowthRate,
   WHAT_IF_RATES,
+  yearOptions,
 } from "./plan";
 
 function expectAbout(actual: number, expected: number) {
@@ -116,4 +118,73 @@ describe("parseGrowthRate", () => {
       });
     },
   );
+});
+
+describe("yearOptions", () => {
+  it("lists this year and the next 30 years", () => {
+    const years = yearOptions(2026);
+    expect(years[0]).toBe(2026);
+    expect(years[years.length - 1]).toBe(2056);
+    expect(years).toHaveLength(31);
+  });
+
+  it("makes April 2028 and the last allowed month pickable", () => {
+    const years = yearOptions(2026);
+    expect(years).toContain(2028);
+    const { errors } = buildPlan(
+      { price: "10000000", savings: "", month: "10", year: String(years[30]) },
+      { year: 2026, month: 10 },
+    );
+    expect(errors).toEqual({});
+  });
+});
+
+describe("growthAdded", () => {
+  it.each([
+    [-0.1, -855_960],
+    [0, 0],
+    [0.05, 381_535],
+    [0.1, 736_493],
+    [0.15, 1_067_591],
+    [0.2, 1_377_178],
+  ])(
+    "₸10,000,000 in 20 months at %d a year: growth adds ₸%d",
+    (rate, amount) => {
+      expectAbout(growthAdded(planOf(), rate), amount);
+    },
+  );
+
+  it("counts only what is left after the savings: ₸1,000,000 saved at 10%", () => {
+    const plan = planOf({ ...tenMillion, savings: "1000000" });
+    expectAbout(growthAdded(plan, 0.1), 822_327);
+  });
+
+  it("is the goal minus the savings minus the total paid in", () => {
+    const plan = planOf({ ...tenMillion, savings: "2500000" });
+    for (const rate of [-0.3, -0.1, 0.03, 0.1, 0.25, 0.8]) {
+      const paidIn = monthlyAtGrowth(plan, rate) * plan.months;
+      expect(
+        Math.abs(
+          growthAdded(plan, rate) - (plan.goalAmount - plan.saved - paidIn),
+        ),
+      ).toBeLessThan(1e-6);
+    }
+  });
+
+  it("adds nothing when the savings already cover the goal", () => {
+    const plan = planOf({ ...tenMillion, savings: "15000000" });
+    for (const rate of [-0.1, 0, 0.2]) {
+      expect(growthAdded(plan, rate)).toBe(0);
+    }
+  });
+
+  it("is exactly 0 at 0%, whatever the goal", () => {
+    const plan = planOf({
+      price: "8851400",
+      savings: "1000000",
+      month: "4",
+      year: "2028",
+    });
+    expect(growthAdded(plan, 0)).toBe(0);
+  });
 });

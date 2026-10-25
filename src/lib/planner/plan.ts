@@ -92,6 +92,22 @@ export function parseAmount(text: string): ParsedAmount {
   return { kind: "number", value: Number(cleaned) };
 }
 
+/** How much of the goal the growth covers: goal minus savings minus what is paid in. */
+export function growthAdded(
+  plan: Pick<Plan, "months" | "goalAmount" | "saved">,
+  rate: number,
+): number {
+  if (rate === 0 || plan.saved >= plan.goalAmount) return 0;
+  return (
+    plan.goalAmount - plan.saved - monthlyAtGrowth(plan, rate) * plan.months
+  );
+}
+
+/** This year and the next 30, the most the planner can look ahead. */
+export function yearOptions(thisYear: number): number[] {
+  return Array.from({ length: MAX_MONTHS / 12 + 1 }, (_, i) => thisYear + i);
+}
+
 export function monthsBetween(from: YearMonth, to: YearMonth): number {
   return (to.year - from.year) * 12 + (to.month - from.month);
 }
