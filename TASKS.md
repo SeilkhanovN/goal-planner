@@ -5,6 +5,7 @@ How to use:
 - Add a task: /add-task <what you want>, or write a one-line idea under "Ideas" and run /add-task
 - Build the next ready task: /task (or /task T-005 for a specific one)
 - Build several in a row: /goal every task under "Ready" in TASKS.md is done using /task, one at a time (stop after 3 tasks)
+- "Waiting for the financist" holds tasks that need justified numbers; /task does not pick them up until they are moved to "Ready"
 
 Sizes: S = small, Claude just builds it · M = Claude shows a plan first (plan mode) · L = Claude brainstorms with me first (plan mode + brainstorming), then shows a plan
 
@@ -19,15 +20,15 @@ Done when:
 
 ## Ready
 
-### T-010 · All assumptions in one file · M
+### T-010 · What-if growth rates · M
 
-What: Every number the plan relies on moves into one dated, versioned data file, using the proposed values below. The planner does not use them yet, so nothing on screen changes. A test checks that the file is complete and sensible.
+What: Under the plan, a table "If your money grows by…" shows the monthly amount to save for yearly growth of −10%, 0% (cash or a plain account), 5%, 10%, 15% and 20%, plus a field for your own rate. Clicking a row makes the plan use that rate; 0% is selected at the start. The page says plainly that the percentages are examples, not forecasts, and that nobody knows what an investment will earn, and no row is named after a product (no stocks, sukuk or deposits).
 Done when:
 
-- The file has a version and a date, and lists the asset types with yearly returns bad / middle / good and the fall in the bad case: Islamic deposit in tenge 8 / 11 / 13.5% (fall 0%), Islamic deposit in dollars 1 / 2 / 3% (0%), sukuk fund 3.5 / 4.5 / 6% (10%), Shariah equity fund 5 / 7 / 11% (25%).
-- It also holds: price growth 8% (tenge goals) and 3% (dollar goals), dollar rate ₸442.57, tenge weakening 5% a year, tenge shock 15%, bank loan rate 25%, safety rule limits of 12 and 36 months, and the strategy mixes (Cautious 100% Islamic deposit; Balanced 60% deposit, 20% sukuk, 20% equity; Growth 20% deposit, 20% sukuk, 60% equity; deposit in dollars for dollar goals).
-- A test fails if a value is missing or negative, if a mix does not add up to 100%, or if bad is above middle or middle above good.
-- The planner still shows the plain-saving numbers from T-008, and no other code contains these numbers.
+- ₸10,000,000 in 20 months with nothing saved shows −10% ₸543,000, 0% ₸500,000, 5% ₸481,000, 10% ₸463,000, 15% ₸447,000 and 20% ₸431,000 a month.
+- Typing your own yearly rate between −50% and 100% adds a row labelled "your own rate"; a non-number or a rate outside that range shows an error under the field.
+- A higher growth rate never needs a higher monthly amount than a lower one, and 0% equals the plain-saving amount (tests).
+- The "not a forecast" sentence and the list of rates come from the text file, with no product names anywhere.
 
 ### T-011 · Goal type buttons · S
 
@@ -38,23 +39,105 @@ Done when:
 - Picking one changes the wording of the plan, for example "To reach ₸8.85m for the car by April 2028" becomes "…for the wedding…".
 - The wording for each goal comes from the text file.
 
-### T-026 · Optional price rise · M
+### T-016 · Monthly budget check · M
 
-What: A "Price rise a year (%)" field, left at 0. When filled in, the plan saves for the higher price at the date and shows both today's price and the price at the date, so it is clear why the monthly amount is higher. The spec's later examples assume a price rise of 8% a year (3% for dollar goals), so check those with this field set.
+What: An optional monthly budget field. With a budget, the plan says "on track" or "short by X" for the selected growth rate. When savings already cover the goal it says on track and shows the surplus.
 Done when:
 
-- ₸10,000,000 in 20 months with a price rise of 8%: price at the date about ₸11.37m and about ₸568,000 a month; with the field blank or 0 it is ₸500,000 a month.
-- The plan says "prices are assumed to rise 8% a year" when the field is filled in.
-- A non-number or a rise outside −50% to 100% shows an error under the field.
+- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, growth 0% shows "short by ₸0.65m" (₸651,400), because the plan needs ₸436,189 a month.
+- Same car with savings ₸10,000,000 shows ₸0 a month and "on track" with a surplus of about ₸1.15m (₸1,148,600).
+- A blank or 0 budget hides the check; a negative or non-number shows an error under the field.
 
-### T-012 · Where the savings are kept: normal and safe amounts · M
+### T-017 · Three fixes when the budget is short · M
 
-What: A choice "Where will you keep the money?": "Just set aside" (no growth, selected at the start) or "Islamic deposit in tenge" (the Cautious strategy). With the deposit, the plan shows two amounts at the top: the normal (middle) case and the safe (bad) case. The good case is calculated too, using the returns from the assumptions file. "Just set aside" keeps the plain numbers from T-008.
+What: When the budget falls short, three buttons offer a fix: save more each month, buy later, or aim for a lower price. Clicking one updates the form and the plan shows "on track".
 Done when:
 
-- Car ₸8,851,400, 18 months, savings ₸1,000,000: "Just set aside" shows ₸436,000 a month; the deposit with a price rise of 8% shows "Save ₸452,000 a month, normal case" (451,791) and "Save ₸463,000 a month, safe if things go badly" (463,335) (GT-04).
-- The safe amount is shown before the good case, and tests confirm the monthly amount is highest in the bad case and lowest in the good case.
-- The wording calls the cases bad, middle and good (shown as "safe" and "normal"), never "expected".
+- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, growth 0% shows "Save ₸436,000", "Buy in June 2028" (20 months needed, starting October 2026) and "Aim for ₸8.20m" (what the budget can reach: ₸1,000,000 + 18 × ₸400,000).
+- Clicking any of the three shows "on track".
+- If the goal cannot be reached within 360 months on this budget, only the "save more" fix is offered, with a message saying so.
+
+### T-018 · Loan comparison · M
+
+What: A card compares with buying today using a bank loan over the same number of months, with savings as the down payment. It shows the monthly payment and total interest (riba), worded respectfully ("a loan would cost ₸1.47m more"). The loan rate starts at 25%, a placeholder kept in one place until real bank offers are collected, and can be edited.
+Done when:
+
+- Price ₸8,851,400, savings ₸1,000,000, 18 months, 25%: payment ₸518,055 and total interest ₸1,473,589, shown as about ₸518,000 a month and ₸1.47m (GT-07).
+- Changing the rate updates the card, and a 0% rate gives zero interest.
+- Savings that cover the price show "no loan needed" instead of a negative loan.
+
+### T-019 · Disclaimer and wording check · S
+
+What: Every result shows a disclaimer that the figures are illustrations, not forecasts. An automatic test makes sure the texts never promise returns.
+Done when:
+
+- Every result shows "Information, not investment advice or a fatwa" and "These figures are illustrations, not forecasts. Real results can be lower, including losses."
+- A test fails if the text file contains "you will earn", "guaranteed", "expected" or "recommended".
+- Both sentences come from the text file.
+
+### T-020 · Copy link to this plan · M
+
+What: A "Copy link to this plan" button creates a link holding all the inputs, including the chosen growth rate. Opening it on another computer rebuilds the same form and plan. Nothing is stored on a server.
+Done when:
+
+- A copied link opened in a new window shows the same form and identical numbers (for example the ₸10,000,000 in 20 months example at 10%).
+- The link carries a format version number so old links can keep working later.
+- Bad or edited values in a link show the same errors as typed values and never crash the page.
+- A test builds a link and reads it back for several example goals and gets the same inputs.
+
+### T-023 · "How we calculate" page · M
+
+What: A page linked from the bottom of the planner explains the method in plain words: how a monthly amount follows from the price, the months, what you have saved and the growth you assume. It says the growth rates are examples, not forecasts.
+Done when:
+
+- The planner links to the page.
+- It explains the method with an example: ₸10,000,000 in 20 months needs ₸500,000 a month at 0% and about ₸463,000 at 10% a year.
+- It explains the loan comparison and repeats the disclaimer from T-019.
+
+### T-024 · Accessibility and speed pass · M
+
+What: Make the site usable with a keyboard and a screen reader and fast on an ordinary laptop.
+Done when:
+
+- Every field has a label, every button works with the keyboard, and errors are read out by screen readers.
+- An automated accessibility scan finds no WCAG 2.1 AA problems on the home, planner and how-we-calculate pages.
+- Results appear within 200 ms of a change, with the measurement reported.
+
+### T-025 · Product name and look and feel · L
+
+What: Together we decide the product name and visual style, then apply them across the site at screen widths of 1024 px and wider, with the form and plan side by side.
+Done when:
+
+- The agreed name shows in the header of every page.
+- The agreed colors and fonts are used on the home, planner and how-we-calculate pages.
+- At 1024 px and wider the planner shows the form and plan side by side.
+
+## In progress
+
+## Ideas
+
+- Remember the last inputs on this device, with a "clear" button.
+- Strict content security policy and browser error reporting without personal data.
+- Phone layout where the form and plan stack.
+- A comma typed as a decimal mark (for example "1,5") is read as a thousands separator; decide how to treat commas.
+- The planner form is not in the first page the server sends, only "Loading…" until the browser starts it; show the form straight away.
+- Group the month and year fields under one label for screen readers (covered by T-024).
+- The month count can shift if a tab stays open across the end of a month.
+- Optional "price rise a year (%)" field, left at 0: the plan saves for the higher price at the date and shows both prices (₸10,000,000 in 20 months at 8% a year: about ₸11.37m at the date and about ₸568,000 a month with no growth).
+
+## Waiting for the financist
+
+Not started until the financist confirms the numbers and the named options (deposit, sukuk fund, equity fund). The examples assume the original spec values and the optional price rise from Ideas.
+
+### T-026 · Assumptions file with sources · M
+
+What: Every number the plan relies on goes into one dated, versioned data file. Each number records where it comes from, a date, and whether it is an "estimate" or "past data". The spec's original values stay as a frozen set for tests, so changing the real values never breaks them. The values below are placeholders to be replaced with the financist's numbers.
+Done when:
+
+- The file has a version and a date, and lists the asset types with yearly returns bad / middle / good and the fall in the bad case: Islamic deposit in tenge 8 / 11 / 13.5% (fall 0%), Islamic deposit in dollars 1 / 2 / 3% (0%), sukuk fund 2 / 4.5 / 6% (10%), Shariah equity fund 0 / 7 / 11% (25%). The frozen test set keeps the spec's bad-case values of 3.5% and 5%.
+- It also holds: price growth 8% (tenge goals) and 3% (dollar goals), dollar rate ₸442.57, tenge weakening 5% a year, tenge shock 15%, bank loan rate 25%, safety rule limits of 12 and 36 months, and the strategy mixes (Cautious 100% Islamic deposit; Balanced 60% deposit, 20% sukuk, 20% equity; Growth 20% deposit, 20% sukuk, 60% equity; deposit in dollars for dollar goals).
+- A test fails if a number has no source, date or "estimate" / "past data" label, if a fall is outside 0–100%, if a mix does not add up to 100%, or if bad is above middle or middle above good. Negative returns are allowed.
+- The planner shows "Numbers updated Oct 2026" from the file and warns when it is more than 45 days old.
 
 ### T-013 · Strategy engine with the safety rule · M
 
@@ -69,7 +152,7 @@ Done when:
 
 ### T-014 · Three strategy cards · M
 
-What: Below the amounts, cards side by side (Just set aside, Cautious, Balanced, Growth) replace the choice from T-012. The three strategy cards show the normal and safe monthly amounts and a one-line description of the mix. Cautious is the open strategy and none is labelled "recommended". Clicking a card selects it, and the selected card drives the amounts at the top. A card shows a note when the safety rule changes its mix.
+What: Below the amounts, cards side by side (Just set aside, Cautious, Balanced, Growth) join the what-if table from T-010. The three strategy cards show the normal and safe monthly amounts and a one-line description of the mix. Cautious is the open strategy and none is labelled "recommended". Clicking a card selects it, and the selected card drives the amounts at the top. A card shows a note when the safety rule changes its mix.
 Done when:
 
 - Car ₸8,851,400, 18 months, savings ₸1,000,000, price rise 8%: Cautious shows ₸452,000 normal and ₸463,000 safe; Balanced and Growth show ₸452,000 normal and ₸490,000 safe, and Growth says it acts like Balanced when under 3 years remain.
@@ -84,52 +167,6 @@ Done when:
 - Car $20,000, 18 months, no savings, Cautious, price rise 3%: price at the date ₸9,955,240; monthly middle ₸526,608, bad ₸530,358 (GT-05).
 - A dollar price outside $20–$10m shows an error under the field.
 - Switching currency keeps the other fields and updates the plan; picking Hajj or Umrah selects $.
-
-### T-016 · Monthly budget check · M
-
-What: An optional monthly budget field. With a budget, the plan says "on track" or "short by X" for the selected strategy in the middle case. When savings already cover the goal it says on track and shows the surplus.
-Done when:
-
-- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, Balanced, price rise 8% shows "short by ₸1.0m" (gap −₸1,004,657) (GT-03).
-- Same car with savings ₸10,000,000, Cautious and price rise 8% shows ₸0 a month and "on track" with a surplus of about ₸1.76m (₸1,760,039) (GT-08).
-- A blank or 0 budget hides the check; a negative or non-number shows an error under the field.
-
-### T-017 · Three fixes when the budget is short · M
-
-What: When the budget falls short, three buttons offer a fix: save more each month, buy later, or aim for a lower price. Clicking one updates the form and the plan shows "on track".
-Done when:
-
-- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, Balanced, price rise 8% shows "Save ₸452,000", "Buy in July 2028" (21 months needed) and "Aim for ₸7.96m" (affordable today ₸7,956,278) (GT-03).
-- Clicking any of the three shows "on track".
-- If the goal cannot be reached within 360 months on this budget, only the "save more" fix is offered, with a message saying so.
-
-### T-018 · Loan comparison · M
-
-What: A card compares with buying today using a bank loan over the same number of months, with savings as the down payment. It shows the monthly payment and total interest (riba), worded respectfully ("a loan would cost ₸1.47m more"). The loan rate starts at 25% from the assumptions file, a placeholder until real bank offers are collected, and can be edited.
-Done when:
-
-- Price ₸8,851,400, savings ₸1,000,000, 18 months, 25%: payment ₸518,055 and total interest ₸1,473,589, shown as about ₸518,000 a month and ₸1.47m (GT-07).
-- Changing the rate updates the card, and a 0% rate gives zero interest.
-- Savings that cover the price show "no loan needed" instead of a negative loan.
-
-### T-019 · Disclaimer, version line and wording check · S
-
-What: Every result shows the disclaimer and the assumptions version and date, with a warning when the numbers are old. An automatic test makes sure the texts never promise returns.
-Done when:
-
-- Every result shows the disclaimer ("information, not investment advice or a fatwa") and "Numbers updated Oct 2026" taken from the assumptions file.
-- If the assumptions date is more than 45 days old, a warning shows.
-- A test fails if the text file contains "you will earn", "guaranteed", "expected" or "recommended".
-
-### T-020 · Copy link to this plan · M
-
-What: A "Copy link to this plan" button creates a link holding all the inputs. Opening it on another computer rebuilds the same form and plan. Nothing is stored on a server.
-Done when:
-
-- A copied link opened in a new window shows the same form and identical numbers (for example GT-03 and GT-05 inputs).
-- The link carries a format version number so old links can keep working later.
-- Bad or edited values in a link show the same errors as typed values and never crash the page.
-- A test builds a link and reads it back for several example goals and gets the same inputs.
 
 ### T-021 · Explaining halal terms and savings types · L
 
@@ -149,45 +186,6 @@ Done when:
 - 18-month Balanced shows Balanced in months 1–6 and Cautious in months 7–18 (GT-03).
 - Home deposit ₸15,000,000 over 120 months on Growth shows 84 months Growth, 24 Balanced and 12 Cautious (GT-06).
 - The page keeps the plan inputs, and a back link returns to the planner without losing what was typed.
-
-### T-023 · "How we calculate" page · M
-
-What: A page linked from the bottom of the planner explains the method in plain words and lists every assumption with its value, date and source.
-Done when:
-
-- The planner links to the page, and the page shows the assumptions version and date.
-- It explains the monthly amount, the three cases, the safety rule and the loan comparison in plain words, and repeats the disclaimer.
-- Every assumption value shown is read from the assumptions file, and a test fails if one is missing.
-
-### T-024 · Accessibility and speed pass · M
-
-What: Make the site usable with a keyboard and a screen reader and fast on an ordinary laptop.
-Done when:
-
-- Every field has a label, every button works with the keyboard, and errors are read out by screen readers.
-- An automated accessibility scan finds no WCAG 2.1 AA problems on the home, planner, details and how-we-calculate pages.
-- Results appear within 200 ms of a change, with the measurement reported.
-
-### T-025 · Product name and look and feel · L
-
-What: Together we decide the product name and visual style, then apply them across the site at screen widths of 1024 px and wider, with the form and plan side by side.
-Done when:
-
-- The agreed name shows in the header of every page.
-- The agreed colors and fonts are used on the home, planner, details and how-we-calculate pages.
-- At 1024 px and wider the planner shows the form and plan side by side.
-
-## In progress
-
-## Ideas
-
-- Remember the last inputs on this device, with a "clear" button.
-- Strict content security policy and browser error reporting without personal data.
-- Phone layout where the form and plan stack.
-- A comma typed as a decimal mark (for example "1,5") is read as a thousands separator; decide how to treat commas.
-- The planner form is not in the first page the server sends, only "Loading…" until the browser starts it; show the form straight away.
-- Group the month and year fields under one label for screen readers (covered by T-024).
-- The month count can shift if a tab stays open across the end of a month.
 
 ## Done
 
