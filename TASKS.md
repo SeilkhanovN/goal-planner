@@ -106,7 +106,6 @@ Done when:
 
 ## Ideas
 
-- The production build now fails with "Your version of Next.js is affected by a known security vulnerability" (Next.js 16.4.0), which will also turn CI red; decide how and when to upgrade Next.js.
 - Clearing the own-rate field silently switches the plan back to the last clicked row; decide what should happen.
 - "Your savings already cover the goal" also shows when only the assumed growth covers it (for example ₸9.9m saved, ₸10m goal, 20% growth); reword or show it only at 0%.
 - A very small own rate (for example 0.001%) is shown as "0%" in its row label.
