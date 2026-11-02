@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildPlan, monthsBetween, parseAmount } from "./plan";
+import {
+  budgetCheck,
+  buildPlan,
+  monthlyAtGrowth,
+  monthsBetween,
+  parseAmount,
+  parseBudget,
+} from "./plan";
 
 function expectAbout(actual: number, expected: number) {
   expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1);
@@ -163,5 +170,68 @@ describe("buildPlan", () => {
     const result = buildPlan({ ...car, price: "abc", month: "" }, today);
     expect(result.errors.price).toBe("notNumber");
     expect(result.plan).toBeNull();
+  });
+});
+
+describe("parseBudget", () => {
+  it.each(["", "  ", "0", "0 000"])("treats %j as no budget", (text) => {
+    expect(parseBudget(text)).toEqual({ kind: "none" });
+  });
+
+  it("reads grouped amounts", () => {
+    expect(parseBudget("400 000")).toEqual({ kind: "budget", value: 400_000 });
+  });
+
+  it("rejects negative amounts and text", () => {
+    expect(parseBudget("-5")).toEqual({ kind: "error", error: "negative" });
+    expect(parseBudget("abc")).toEqual({ kind: "error", error: "notNumber" });
+  });
+});
+
+describe("budgetCheck", () => {
+  const plan = {
+    months: 18,
+    goalAmount: 8_851_400,
+    saved: 1_000_000,
+    growth: 0,
+    monthlySaving: 0,
+  };
+
+  it("is short by the gap on the purchase date", () => {
+    const check = budgetCheck(plan, 0, 400_000);
+    expect(check.kind).toBe("short");
+    if (check.kind === "short") expectAbout(check.shortBy, 651_400);
+  });
+
+  it("is on track when savings already cover the goal, with the surplus", () => {
+    const check = budgetCheck({ ...plan, saved: 10_000_000 }, 0, 400_000);
+    expect(check.kind).toBe("onTrack");
+    if (check.kind === "onTrack") expectAbout(check.surplus ?? 0, 1_148_600);
+  });
+
+  it("is on track, without a surplus, when the budget covers the monthly amount", () => {
+    const monthly = monthlyAtGrowth(plan, 0);
+    expect(budgetCheck(plan, 0, monthly)).toEqual({ kind: "onTrack" });
+    expect(budgetCheck(plan, 0, monthly + 50_000)).toEqual({ kind: "onTrack" });
+  });
+
+  it("is short by less when the money grows", () => {
+    const at0 = budgetCheck(plan, 0, 300_000);
+    const at10 = budgetCheck(plan, 0.1, 300_000);
+    expect(at0.kind).toBe("short");
+    expect(at10.kind).toBe("short");
+    if (at0.kind === "short" && at10.kind === "short") {
+      expect(at10.shortBy).toBeLessThan(at0.shortBy);
+    }
+  });
+
+  it("can turn short into on track when the growth is high enough", () => {
+    expect(budgetCheck(plan, 0, 436_000).kind).toBe("short");
+    expect(budgetCheck(plan, 0.2, 436_000).kind).toBe("onTrack");
+  });
+
+  it("counts a gap that rounds to ₸0 as on track", () => {
+    const monthly = monthlyAtGrowth(plan, 0);
+    expect(budgetCheck(plan, 0, monthly - 1)).toEqual({ kind: "onTrack" });
   });
 });

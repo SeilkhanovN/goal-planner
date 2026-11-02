@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { en } from "./en";
 
+describe("budget check texts", () => {
+  it("words each outcome", () => {
+    const { budgetCheck } = en.planner;
+    expect(budgetCheck.onTrack).toBe("On track.");
+    expect(budgetCheck.onTrackSpare("₸1.15m")).toBe(
+      "On track, with ₸1.15m to spare.",
+    );
+    expect(budgetCheck.shortBy("₸651,000", "April 2028")).toBe(
+      "Short by ₸651,000 by April 2028.",
+    );
+  });
+});
+
 describe("goal types", () => {
   it("has the seven goals, car first", () => {
     expect(en.planner.goals.map((goal) => goal.id)).toEqual([

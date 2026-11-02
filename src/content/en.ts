@@ -29,6 +29,8 @@ export const en = {
     yearAriaLabel: "Year",
     savingsLabel: "Already saved (₸)",
     savingsPlaceholder: "Optional",
+    budgetLabel: "Monthly budget (₸)",
+    budgetPlaceholder: "Optional",
     monthNames: [
       "January",
       "February",
@@ -55,6 +57,10 @@ export const en = {
         notNumber: "Enter a number or leave blank.",
         negative: "Can't be negative.",
       },
+      budget: {
+        notNumber: "Enter a number or leave blank.",
+        negative: "Can't be negative.",
+      },
       date: {
         notNumber: "Pick a year.",
         dateNotLater: "Pick a later month.",
@@ -67,6 +73,12 @@ export const en = {
       `To reach ${amount} for ${goal} by ${date}`,
     saveMonthly: (amount: string) => `Save ${amount} a month`,
     alreadyCovered: "Savings already cover the goal.",
+    budgetCheck: {
+      onTrack: "On track.",
+      onTrackSpare: (amount: string) => `On track, with ${amount} to spare.`,
+      shortBy: (amount: string, date: string) =>
+        `Short by ${amount} by ${date}.`,
+    },
     breakdown: (monthly: string, months: string, total: string) =>
       `${monthly} × ${months} ≈ ${total}`,
     breakdownWithSaved: (

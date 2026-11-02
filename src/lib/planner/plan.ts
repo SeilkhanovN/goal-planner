@@ -1,4 +1,4 @@
-import { monthlySavingNeeded } from "../engine/savings";
+import { monthlySavingNeeded, toMonthlyRate } from "../engine/savings";
 
 export const MIN_PRICE = 10_000;
 export const MAX_PRICE = 5_000_000_000;
@@ -76,6 +76,57 @@ export function monthlyAtGrowth(
     yearlyReturn: rate,
     yearlyPriceGrowth: 0,
   });
+}
+
+export type BudgetResult =
+  | { kind: "none" }
+  | { kind: "error"; error: "notNumber" | "negative" }
+  | { kind: "budget"; value: number };
+
+/** Reads the monthly budget. Blank or 0 means no budget, so no check is shown. */
+export function parseBudget(text: string): BudgetResult {
+  const amount = parseAmount(text);
+  if (amount.kind === "blank") return { kind: "none" };
+  if (amount.kind === "invalid") return { kind: "error", error: "notNumber" };
+  if (amount.value < 0) return { kind: "error", error: "negative" };
+  if (amount.value === 0) return { kind: "none" };
+  return { kind: "budget", value: amount.value };
+}
+
+export type BudgetCheck =
+  { kind: "onTrack"; surplus?: number } | { kind: "short"; shortBy: number };
+
+/** Gaps and surpluses below this show as ₸0, so they are not reported. */
+const MIN_REPORTED_AMOUNT = 500;
+
+/**
+ * Compares a monthly budget with the plan at growth `rate`. `shortBy` is the gap
+ * on the purchase date if only the budget is saved each month. `surplus` is
+ * what the savings alone exceed the goal by, and only appears when they cover it.
+ */
+export function budgetCheck(
+  plan: Pick<Plan, "months" | "goalAmount" | "saved">,
+  rate: number,
+  budget: number,
+): BudgetCheck {
+  const monthly = monthlyAtGrowth(plan, rate);
+  const monthlyRate = toMonthlyRate(rate);
+  if (monthly === 0) {
+    const savedAtDate = plan.saved * (1 + monthlyRate) ** plan.months;
+    const surplus = savedAtDate - plan.goalAmount;
+    return surplus >= MIN_REPORTED_AMOUNT
+      ? { kind: "onTrack", surplus }
+      : { kind: "onTrack" };
+  }
+  // A deposit of 1 a month for `months` months grows to this much by the date.
+  const perDeposit =
+    monthlyRate === 0
+      ? plan.months
+      : ((1 + monthlyRate) ** plan.months - 1) / monthlyRate;
+  const shortBy = (monthly - budget) * perDeposit;
+  return shortBy >= MIN_REPORTED_AMOUNT
+    ? { kind: "short", shortBy }
+    : { kind: "onTrack" };
 }
 
 /** No errors and no plan means the form is still waiting for a price or a date. */

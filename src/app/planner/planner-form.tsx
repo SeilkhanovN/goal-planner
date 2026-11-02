@@ -12,10 +12,12 @@ import {
   groupDigits,
 } from "@/lib/planner/format";
 import {
+  budgetCheck,
   buildPlan,
   growthAdded,
   monthlyAtGrowth,
   type Plan,
+  parseBudget,
   parseGrowthRate,
   WHAT_IF_RATES,
   yearOptions,
@@ -83,6 +85,7 @@ export function PlannerForm() {
 
   const [price, setPrice] = useState("");
   const [savings, setSavings] = useState("");
+  const [budgetText, setBudgetText] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
 
@@ -106,6 +109,14 @@ export function PlannerForm() {
   const priceError = errors.price && planner.errors.price[errors.price];
   const savingsError = errors.savings && planner.errors.savings[errors.savings];
   const dateError = errors.date && planner.errors.date[errors.date];
+
+  const budget = parseBudget(budgetText);
+  const budgetError =
+    budget.kind === "error" && planner.errors.budget[budget.error];
+  const check =
+    plan && budget.kind === "budget"
+      ? budgetCheck(plan, growth, budget.value)
+      : null;
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
@@ -232,6 +243,25 @@ export function PlannerForm() {
           />
           <FieldError id="savings-error" message={savingsError} />
         </div>
+
+        <div>
+          <label htmlFor="budget" className="mb-1 block font-medium">
+            {planner.budgetLabel}
+          </label>
+          <input
+            id="budget"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            className={`${inputClass} w-full`}
+            placeholder={planner.budgetPlaceholder}
+            value={budgetText}
+            onChange={(event) => setBudgetText(groupDigits(event.target.value))}
+            aria-invalid={budgetError ? true : undefined}
+            aria-describedby={budgetError ? "budget-error" : undefined}
+          />
+          <FieldError id="budget-error" message={budgetError || undefined} />
+        </div>
       </form>
 
       <section aria-live="polite" className="flex flex-col gap-4">
@@ -248,6 +278,26 @@ export function PlannerForm() {
             <p className="text-3xl font-semibold tracking-tight">
               {planner.saveMonthly(formatMonthly(plan.monthlySaving))}
             </p>
+            {check && (
+              <p
+                className={`font-medium ${
+                  check.kind === "short"
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-green-700 dark:text-green-400"
+                }`}
+              >
+                {check.kind === "short"
+                  ? planner.budgetCheck.shortBy(
+                      formatTotal(check.shortBy),
+                      `${planner.monthNames[Number(month) - 1]} ${year.trim()}`,
+                    )
+                  : check.surplus !== undefined
+                    ? planner.budgetCheck.onTrackSpare(
+                        formatTotal(check.surplus),
+                      )
+                    : planner.budgetCheck.onTrack}
+              </p>
+            )}
             {plan.monthlySaving === 0 ? (
               <p className="text-zinc-600 dark:text-zinc-400">
                 {planner.alreadyCovered}

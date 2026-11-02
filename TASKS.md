@@ -20,15 +20,6 @@ Done when:
 
 ## Ready
 
-### T-016 · Monthly budget check · M
-
-What: An optional monthly budget field. With a budget, the plan says "on track" or "short by X" for the selected growth rate. When savings already cover the goal it says on track and shows the surplus.
-Done when:
-
-- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, growth 0% shows "short by ₸0.65m" (₸651,400), because the plan needs ₸436,189 a month.
-- Same car with savings ₸10,000,000 shows ₸0 a month and "on track" with a surplus of about ₸1.15m (₸1,148,600).
-- A blank or 0 budget hides the check; a negative or non-number shows an error under the field.
-
 ### T-017 · Three fixes when the budget is short · M
 
 What: When the budget falls short, three buttons offer a fix: save more each month, buy later, or aim for a lower price. Clicking one updates the form and the plan shows "on track".
@@ -110,6 +101,7 @@ Done when:
 - Group the month and year fields under one label for screen readers (covered by T-024).
 - The month count can shift if a tab stays open across the end of a month.
 - Optional "price rise a year (%)" field, left at 0: the plan saves for the higher price at the date and shows both prices (₸10,000,000 in 20 months at 8% a year: about ₸11.37m at the date and about ₸568,000 a month with no growth).
+- The purchase date text ("April 2028") is built in two places in the planner form; build it once.
 
 ## Waiting for the financist
 
@@ -189,3 +181,4 @@ Done when:
 - T-028 · How much the growth adds in each row (2026-10-25): each growth row also shows how much of the goal the growth covers, as an amount and a share (for example ₸736,000, 7% at 10% a year).
 - T-029 · Shorter texts (2026-10-25): the home and planner texts are about a third shorter (124 to 84 words in the 10% example), with the two long "this plan assumes" sentences replaced by one note.
 - T-011 · Goal type buttons (2026-11-02): seven goal buttons (car, Hajj or Umrah, wedding, home deposit, education, emergency fund, other) sit above the form, car selected at the start, and the plan wording follows the chosen goal.
+- T-016 · Monthly budget check (2026-11-02): an optional monthly budget field; the plan says "On track" (with the surplus when savings cover the goal) or "Short by X by <date>" for the picked growth rate.
