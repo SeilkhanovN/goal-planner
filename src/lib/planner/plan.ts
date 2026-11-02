@@ -99,6 +99,14 @@ export type BudgetCheck =
 /** Gaps and surpluses below this show as ₸0, so they are not reported. */
 const MIN_REPORTED_AMOUNT = 500;
 
+/** What a deposit of 1 a month, made for `months` months, grows to by the end. */
+function depositsGrowth(months: number, rate: number): number {
+  const monthlyRate = toMonthlyRate(rate);
+  return monthlyRate === 0
+    ? months
+    : ((1 + monthlyRate) ** months - 1) / monthlyRate;
+}
+
 /**
  * Compares a monthly budget with the plan at growth `rate`. `shortBy` is the gap
  * on the purchase date if only the budget is saved each month. `surplus` is
@@ -118,15 +126,53 @@ export function budgetCheck(
       ? { kind: "onTrack", surplus }
       : { kind: "onTrack" };
   }
-  // A deposit of 1 a month for `months` months grows to this much by the date.
-  const perDeposit =
-    monthlyRate === 0
-      ? plan.months
-      : ((1 + monthlyRate) ** plan.months - 1) / monthlyRate;
-  const shortBy = (monthly - budget) * perDeposit;
+  const shortBy = (monthly - budget) * depositsGrowth(plan.months, rate);
   return shortBy >= MIN_REPORTED_AMOUNT
     ? { kind: "short", shortBy }
     : { kind: "onTrack" };
+}
+
+/** The month `count` months after `from`. */
+export function addMonths(from: YearMonth, count: number): YearMonth {
+  const total = from.year * 12 + (from.month - 1) + count;
+  return { year: Math.floor(total / 12), month: (total % 12) + 1 };
+}
+
+export type BudgetFixes = {
+  /** Monthly amount, rounded up to ₸1,000, that makes the plan on track. */
+  saveMore: number;
+  /** Earliest purchase month on this budget, or null if not within 360 months. */
+  buyLater: { months: number; date: YearMonth } | null;
+  /** Highest price, rounded down to ₸1,000, the budget reaches by the date. Null when out of reach or below the minimum price. */
+  aimFor: number | null;
+};
+
+/**
+ * Ways to get a short plan on track: save more, buy later, or aim lower. When
+ * the goal is not reachable within 360 months only `saveMore` is offered.
+ */
+export function budgetFixes(
+  plan: Pick<Plan, "months" | "goalAmount" | "saved">,
+  rate: number,
+  budget: number,
+  today: YearMonth,
+): BudgetFixes {
+  const saveMore = Math.ceil(monthlyAtGrowth(plan, rate) / 1000) * 1000;
+
+  let buyLater: BudgetFixes["buyLater"] = null;
+  for (let months = plan.months + 1; months <= MAX_MONTHS; months++) {
+    if (budgetCheck({ ...plan, months }, rate, budget).kind === "onTrack") {
+      buyLater = { months, date: addMonths(today, months) };
+      break;
+    }
+  }
+  if (buyLater === null) return { saveMore, buyLater, aimFor: null };
+
+  const reachable =
+    plan.saved * (1 + toMonthlyRate(rate)) ** plan.months +
+    budget * depositsGrowth(plan.months, rate);
+  const aim = Math.floor(reachable / 1000) * 1000;
+  return { saveMore, buyLater, aimFor: aim >= MIN_PRICE ? aim : null };
 }
 
 /** No errors and no plan means the form is still waiting for a price or a date. */

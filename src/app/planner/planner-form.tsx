@@ -13,10 +13,12 @@ import {
 } from "@/lib/planner/format";
 import {
   budgetCheck,
+  budgetFixes,
   buildPlan,
   growthAdded,
   monthlyAtGrowth,
   type Plan,
+  type YearMonth,
   parseBudget,
   parseGrowthRate,
   WHAT_IF_RATES,
@@ -27,6 +29,9 @@ const { planner } = text;
 
 const inputClass =
   "rounded-lg border border-zinc-300 bg-transparent px-3 py-2 dark:border-zinc-700";
+
+const fixButtonClass =
+  "rounded-lg border border-zinc-300 px-3 py-2 hover:bg-foreground/5 dark:border-zinc-700";
 
 function rowClass(selected: boolean): string {
   return `flex w-full items-center justify-between gap-4 rounded-lg border px-3 py-2 text-left ${
@@ -117,6 +122,13 @@ export function PlannerForm() {
     plan && budget.kind === "budget"
       ? budgetCheck(plan, growth, budget.value)
       : null;
+  const fixes =
+    plan && check?.kind === "short" && budget.kind === "budget"
+      ? budgetFixes(plan, growth, budget.value, today)
+      : null;
+  const buyLater = fixes?.buyLater ?? null;
+  const dateText = (date: YearMonth) =>
+    `${planner.monthNames[date.month - 1]} ${date.year}`;
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
@@ -297,6 +309,51 @@ export function PlannerForm() {
                       )
                     : planner.budgetCheck.onTrack}
               </p>
+            )}
+            {fixes && (
+              <div className="flex flex-col gap-3">
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  {buyLater
+                    ? planner.budgetCheck.reachBy(dateText(buyLater.date))
+                    : planner.budgetCheck.neverReached}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={fixButtonClass}
+                    onClick={() =>
+                      setBudgetText(groupDigits(String(fixes.saveMore)))
+                    }
+                  >
+                    {planner.budgetCheck.saveMore(
+                      formatMonthly(fixes.saveMore),
+                    )}
+                  </button>
+                  {buyLater && (
+                    <button
+                      type="button"
+                      className={fixButtonClass}
+                      onClick={() => {
+                        setMonth(String(buyLater.date.month));
+                        setYear(String(buyLater.date.year));
+                      }}
+                    >
+                      {planner.budgetCheck.buyLater(dateText(buyLater.date))}
+                    </button>
+                  )}
+                  {fixes.aimFor !== null && (
+                    <button
+                      type="button"
+                      className={fixButtonClass}
+                      onClick={() =>
+                        setPrice(groupDigits(String(fixes.aimFor)))
+                      }
+                    >
+                      {planner.budgetCheck.aimFor(formatTotal(fixes.aimFor))}
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
             {plan.monthlySaving === 0 ? (
               <p className="text-zinc-600 dark:text-zinc-400">

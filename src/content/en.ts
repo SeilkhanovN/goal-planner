@@ -78,6 +78,11 @@ export const en = {
       onTrackSpare: (amount: string) => `On track, with ${amount} to spare.`,
       shortBy: (amount: string, date: string) =>
         `Short by ${amount} by ${date}.`,
+      reachBy: (date: string) => `On this budget you'd reach it in ${date}.`,
+      neverReached: "On this budget the goal isn't reached within 30 years.",
+      saveMore: (amount: string) => `Save ${amount}`,
+      buyLater: (date: string) => `Buy in ${date}`,
+      aimFor: (amount: string) => `Aim for ${amount}`,
     },
     breakdown: (monthly: string, months: string, total: string) =>
       `${monthly} × ${months} ≈ ${total}`,

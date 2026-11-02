@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  addMonths,
   budgetCheck,
+  budgetFixes,
   buildPlan,
   monthlyAtGrowth,
   monthsBetween,
@@ -233,5 +235,70 @@ describe("budgetCheck", () => {
   it("counts a gap that rounds to ₸0 as on track", () => {
     const monthly = monthlyAtGrowth(plan, 0);
     expect(budgetCheck(plan, 0, monthly - 1)).toEqual({ kind: "onTrack" });
+  });
+});
+
+describe("addMonths", () => {
+  it("moves forward across year ends", () => {
+    expect(addMonths(today, 20)).toEqual({ year: 2028, month: 6 });
+    expect(addMonths(today, 3)).toEqual({ year: 2027, month: 1 });
+    expect(addMonths(today, 360)).toEqual({ year: 2056, month: 10 });
+  });
+});
+
+describe("budgetFixes", () => {
+  const plan = { months: 18, goalAmount: 8_851_400, saved: 1_000_000 };
+
+  it("finds the three fixes for the car at 0%", () => {
+    const fixes = budgetFixes(plan, 0, 400_000, today);
+    expect(fixes.saveMore).toBe(437_000);
+    expect(fixes.buyLater).toEqual({
+      months: 20,
+      date: { year: 2028, month: 6 },
+    });
+    expect(fixes.aimFor).toBe(8_200_000);
+  });
+
+  it("reaches the goal sooner and aims higher when the money grows", () => {
+    const at0 = budgetFixes(plan, 0, 350_000, today);
+    const at10 = budgetFixes(plan, 0.1, 350_000, today);
+    expect(at10.buyLater && at0.buyLater).toBeTruthy();
+    expect(at10.buyLater!.months).toBeLessThan(at0.buyLater!.months);
+    expect(at10.aimFor!).toBeGreaterThan(at0.aimFor!);
+    expect(at10.saveMore).toBeLessThan(at0.saveMore);
+  });
+
+  it("offers only 'save more' when the goal is out of reach in 360 months", () => {
+    const fixes = budgetFixes(plan, 0, 1_000, today);
+    expect(fixes.buyLater).toBeNull();
+    expect(fixes.aimFor).toBeNull();
+    expect(fixes.saveMore).toBe(437_000);
+  });
+
+  it("hides 'aim for' when it would be below the minimum price", () => {
+    const fixes = budgetFixes(
+      { months: 1, goalAmount: 10_000, saved: 0 },
+      0,
+      5_000,
+      today,
+    );
+    expect(fixes.aimFor).toBeNull();
+    expect(fixes.buyLater).not.toBeNull();
+  });
+
+  it.each([0, 0.1, 0.2])("every fix lands on track at %d growth", (rate) => {
+    const budget = 300_000;
+    expect(budgetCheck(plan, rate, budget).kind).toBe("short");
+    const fixes = budgetFixes(plan, rate, budget, today);
+    expect(budgetCheck(plan, rate, fixes.saveMore).kind).toBe("onTrack");
+    expect(fixes.buyLater).not.toBeNull();
+    expect(
+      budgetCheck({ ...plan, months: fixes.buyLater!.months }, rate, budget)
+        .kind,
+    ).toBe("onTrack");
+    expect(fixes.aimFor).not.toBeNull();
+    expect(
+      budgetCheck({ ...plan, goalAmount: fixes.aimFor! }, rate, budget).kind,
+    ).toBe("onTrack");
   });
 });

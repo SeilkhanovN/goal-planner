@@ -11,6 +11,15 @@ describe("budget check texts", () => {
     expect(budgetCheck.shortBy("₸651,000", "April 2028")).toBe(
       "Short by ₸651,000 by April 2028.",
     );
+    expect(budgetCheck.reachBy("June 2028")).toBe(
+      "On this budget you'd reach it in June 2028.",
+    );
+    expect(budgetCheck.neverReached).toBe(
+      "On this budget the goal isn't reached within 30 years.",
+    );
+    expect(budgetCheck.saveMore("₸437,000")).toBe("Save ₸437,000");
+    expect(budgetCheck.buyLater("June 2028")).toBe("Buy in June 2028");
+    expect(budgetCheck.aimFor("₸8.20m")).toBe("Aim for ₸8.20m");
   });
 });
 
