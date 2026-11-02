@@ -20,15 +20,6 @@ Done when:
 
 ## Ready
 
-### T-018 · Loan comparison · M
-
-What: A card compares with buying today using a bank loan over the same number of months, with savings as the down payment. It shows the monthly payment and total interest (riba), worded respectfully ("a loan would cost ₸1.47m more"). The loan rate starts at 25%, a placeholder kept in one place until real bank offers are collected, and can be edited.
-Done when:
-
-- Price ₸8,851,400, savings ₸1,000,000, 18 months, 25%: payment ₸518,055 and total interest ₸1,473,589, shown as about ₸518,000 a month and ₸1.47m (GT-07).
-- Changing the rate updates the card, and a 0% rate gives zero interest.
-- Savings that cover the price show "no loan needed" instead of a negative loan.
-
 ### T-020 · Copy link to this plan · M
 
 What: A "Copy link to this plan" button creates a link holding all the inputs, including the chosen growth rate. Opening it on another computer rebuilds the same form and plan. Nothing is stored on a server.
@@ -87,6 +78,8 @@ Done when:
 - With no date, a budget and an invalid price, the plan panel only shows the generic hint; say what to fix.
 - The earliest-month search (up to 360 checks per growth row, on every keystroke) could use a closed form or a binary search.
 - "You can buy in <month>" can be up to ₸500 short, because the earliest month uses the same ₸500 tolerance as the budget check.
+- The loan rate is an effective yearly rate (it gives the T-018 numbers), but banks often quote a nominal rate (rate ÷ 12 a month); label which one the field means, or offer both.
+- Show the loan comparison in the "budget picks the date" view too, using the months to the goal.
 
 ## Waiting for the financist
 
@@ -170,3 +163,4 @@ Done when:
 - T-017 · Earliest date and three fixes when the budget is short (2026-11-02): a short budget now shows the earliest month it reaches the goal, plus "Save more", "Buy in <month>" and "Aim for <price>" buttons that each put the plan on track.
 - T-030 · Pick a date or let the budget decide (2026-11-02): with the date left blank, a monthly budget gives the earliest month the goal is reached ("You can buy in June 2028"), with a "Use this date" button and a growth table of dates.
 - T-019 · Disclaimer and wording check (2026-11-02): every result shows "Information, not investment advice or a fatwa" and "These figures are illustrations, not forecasts…", and a test fails if any text says "you will earn", "guaranteed", "expected" or "recommended".
+- T-018 · Loan comparison (2026-11-02): a card shows the monthly payment and total interest (riba) of a bank loan for the same goal, with savings as the down payment, an editable loan rate starting at 25%, and "no loan needed" when savings cover the price.

@@ -125,6 +125,24 @@ export const en = {
       },
       notForecast: "These rates are examples. Prices are assumed not to rise.",
     },
+    loan: {
+      title: "If you bought today with a loan",
+      loanLine: (amount: string, months: string, rate: string) =>
+        `Loan of ${amount} over ${months} at ${rate} a year`,
+      payment: (amount: string) => `About ${amount} a month`,
+      interest: (amount: string) =>
+        `A loan would cost ${amount} more in interest (riba).`,
+      noInterest: "At 0% a loan adds no interest.",
+      compare: (monthly: string, interest: string) =>
+        `Saving instead: ${monthly} a month, and the ${interest} stays with you.`,
+      noLoanNeeded: "No loan needed. Your savings cover the price.",
+      rateLabel: "Loan rate (%)",
+      ratePlaceholder: "25",
+      rateErrors: {
+        notNumber: "Enter a number, like 25.",
+        outOfRange: "Use 0 to 100.",
+      },
+    },
     disclaimer: {
       notAdvice: "Information, not investment advice or a fatwa",
       illustrations:

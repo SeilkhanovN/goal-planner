@@ -41,6 +41,27 @@ describe("budget mode texts", () => {
   });
 });
 
+describe("loan card texts", () => {
+  it("words each part respectfully", () => {
+    const { loan } = en.planner;
+    expect(loan.title).toBe("If you bought today with a loan");
+    expect(loan.loanLine("₸7.85m", "18 months", "25%")).toBe(
+      "Loan of ₸7.85m over 18 months at 25% a year",
+    );
+    expect(loan.payment("₸518,000")).toBe("About ₸518,000 a month");
+    expect(loan.interest("₸1.47m")).toBe(
+      "A loan would cost ₸1.47m more in interest (riba).",
+    );
+    expect(loan.noInterest).toBe("At 0% a loan adds no interest.");
+    expect(loan.compare("₸436,000", "₸1.47m")).toBe(
+      "Saving instead: ₸436,000 a month, and the ₸1.47m stays with you.",
+    );
+    expect(loan.noLoanNeeded).toBe(
+      "No loan needed. Your savings cover the price.",
+    );
+  });
+});
+
 describe("goal types", () => {
   it("has the seven goals, car first", () => {
     expect(en.planner.goals.map((goal) => goal.id)).toEqual([

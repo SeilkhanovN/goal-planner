@@ -3,6 +3,7 @@
 import { type ReactNode, use, useState } from "react";
 import { io } from "next/cache";
 import { en as text } from "@/content/en";
+import { loanCost } from "@/lib/engine/loan";
 import {
   formatMonthly,
   formatPercent,
@@ -11,6 +12,7 @@ import {
   formatTotal,
   groupDigits,
 } from "@/lib/planner/format";
+import { DEFAULT_LOAN_RATE, parseLoanRate } from "@/lib/planner/loan";
 import {
   addMonths,
   budgetCheck,
@@ -73,6 +75,85 @@ function RowText({
   );
 }
 
+function LoanCard({
+  plan,
+  rateText,
+  onRateText,
+}: {
+  plan: Plan;
+  rateText: string;
+  onRateText: (text: string) => void;
+}) {
+  const { loan } = planner;
+  const parsed = parseLoanRate(rateText);
+  const rateError = parsed.kind === "error" && loan.rateErrors[parsed.error];
+  const cost =
+    parsed.kind === "rate"
+      ? loanCost({
+          price: plan.goalAmount,
+          downPayment: plan.saved,
+          months: plan.months,
+          yearlyRate: parsed.rate,
+        })
+      : null;
+
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-zinc-300 p-4 dark:border-zinc-700">
+      <h3 className="text-lg font-semibold">{loan.title}</h3>
+      {cost && cost.loanAmount === 0 && (
+        <p className="text-zinc-600 dark:text-zinc-400">{loan.noLoanNeeded}</p>
+      )}
+      {cost && parsed.kind === "rate" && cost.loanAmount > 0 && (
+        <>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            {loan.loanLine(
+              formatTotal(cost.loanAmount),
+              planner.monthsAway(plan.months),
+              formatPercent(parsed.rate),
+            )}
+          </p>
+          <p className="text-xl font-semibold">
+            {loan.payment(formatMonthly(cost.monthlyPayment))}
+          </p>
+          {parsed.rate === 0 ? (
+            <p className="text-zinc-600 dark:text-zinc-400">
+              {loan.noInterest}
+            </p>
+          ) : (
+            <>
+              <p>{loan.interest(formatTotal(cost.totalInterest))}</p>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                {loan.compare(
+                  formatMonthly(plan.monthlySaving),
+                  formatTotal(cost.totalInterest),
+                )}
+              </p>
+            </>
+          )}
+        </>
+      )}
+      <div>
+        <label htmlFor="loan-rate" className="mb-1 block font-medium">
+          {loan.rateLabel}
+        </label>
+        <input
+          id="loan-rate"
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          className={`${inputClass} w-40`}
+          placeholder={loan.ratePlaceholder}
+          value={rateText}
+          onChange={(event) => onRateText(event.target.value)}
+          aria-invalid={rateError ? true : undefined}
+          aria-describedby={rateError ? "loan-rate-error" : undefined}
+        />
+        <FieldError id="loan-rate-error" message={rateError || undefined} />
+      </div>
+    </div>
+  );
+}
+
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
@@ -97,6 +178,10 @@ export function PlannerForm() {
   const [budgetText, setBudgetText] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
+
+  const [loanRateText, setLoanRateText] = useState(
+    String(DEFAULT_LOAN_RATE * 100),
+  );
 
   const [selectedPreset, setSelectedPreset] = useState(0);
   const [ownText, setOwnText] = useState("");
@@ -485,6 +570,11 @@ export function PlannerForm() {
               </>
             )}
 
+            <LoanCard
+              plan={plan}
+              rateText={loanRateText}
+              onRateText={setLoanRateText}
+            />
             {whatIfSection((rate, label) => (
               <RowText label={label} plan={plan} rate={rate} />
             ))}
