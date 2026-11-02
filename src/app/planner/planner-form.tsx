@@ -542,6 +542,12 @@ export function PlannerForm() {
         ) : (
           <p className="text-zinc-600 dark:text-zinc-400">{planner.planHint}</p>
         )}
+        {(plan || budgetPlan) && (
+          <div className="mt-2 flex flex-col gap-1 border-t border-zinc-300 pt-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+            <p className="font-medium">{planner.disclaimer.notAdvice}</p>
+            <p>{planner.disclaimer.illustrations}</p>
+          </div>
+        )}
       </section>
     </div>
   );

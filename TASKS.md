@@ -29,15 +29,6 @@ Done when:
 - Changing the rate updates the card, and a 0% rate gives zero interest.
 - Savings that cover the price show "no loan needed" instead of a negative loan.
 
-### T-019 · Disclaimer and wording check · S
-
-What: Every result shows a disclaimer that the figures are illustrations, not forecasts. An automatic test makes sure the texts never promise returns.
-Done when:
-
-- Every result shows "Information, not investment advice or a fatwa" and "These figures are illustrations, not forecasts. Real results can be lower, including losses."
-- A test fails if the text file contains "you will earn", "guaranteed", "expected" or "recommended".
-- Both sentences come from the text file.
-
 ### T-020 · Copy link to this plan · M
 
 What: A "Copy link to this plan" button creates a link holding all the inputs, including the chosen growth rate. Opening it on another computer rebuilds the same form and plan. Nothing is stored on a server.
@@ -178,3 +169,4 @@ Done when:
 - T-016 · Monthly budget check (2026-11-02): an optional monthly budget field; the plan says "On track" (with the surplus when savings cover the goal) or "Short by X by <date>" for the picked growth rate.
 - T-017 · Earliest date and three fixes when the budget is short (2026-11-02): a short budget now shows the earliest month it reaches the goal, plus "Save more", "Buy in <month>" and "Aim for <price>" buttons that each put the plan on track.
 - T-030 · Pick a date or let the budget decide (2026-11-02): with the date left blank, a monthly budget gives the earliest month the goal is reached ("You can buy in June 2028"), with a "Use this date" button and a growth table of dates.
+- T-019 · Disclaimer and wording check (2026-11-02): every result shows "Information, not investment advice or a fatwa" and "These figures are illustrations, not forecasts…", and a test fails if any text says "you will earn", "guaranteed", "expected" or "recommended".

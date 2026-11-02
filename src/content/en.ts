@@ -123,8 +123,12 @@ export const en = {
         notNumber: "Enter a number, like 7.5.",
         outOfRange: "Use −50 to 100.",
       },
-      notForecast:
-        "These rates are examples, not forecasts. Real results can be lower, even losses. Prices are assumed not to rise.",
+      notForecast: "These rates are examples. Prices are assumed not to rise.",
+    },
+    disclaimer: {
+      notAdvice: "Information, not investment advice or a fatwa",
+      illustrations:
+        "These figures are illustrations, not forecasts. Real results can be lower, including losses.",
     },
     loading: "Loading…",
   },

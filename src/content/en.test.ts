@@ -64,3 +64,57 @@ describe("goal types", () => {
     ).toBe("To reach ₸8.85m for the wedding by April 2028");
   });
 });
+
+describe("disclaimer", () => {
+  it("has the two required sentences", () => {
+    expect(en.planner.disclaimer.notAdvice).toBe(
+      "Information, not investment advice or a fatwa",
+    );
+    expect(en.planner.disclaimer.illustrations).toBe(
+      "These figures are illustrations, not forecasts. Real results can be lower, including losses.",
+    );
+  });
+});
+
+/** Every string in the texts. Texts that are functions are called with sample words. */
+function allTexts(value: unknown): string[] {
+  if (typeof value === "string") return [value];
+  if (typeof value === "function") {
+    const sample = Array.from({ length: value.length }, () => "x");
+    return allTexts(value(...sample));
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value).flatMap(allTexts);
+  }
+  return [];
+}
+
+const BANNED_PHRASES = [
+  "you will earn",
+  "guaranteed",
+  "expected",
+  "recommended",
+];
+
+function bannedIn(texts: string[]): string[] {
+  return texts.flatMap((text) =>
+    BANNED_PHRASES.filter((phrase) => text.toLowerCase().includes(phrase)).map(
+      (phrase) => `"${phrase}" in "${text}"`,
+    ),
+  );
+}
+
+describe("wording check", () => {
+  it("never promises returns anywhere in the texts", () => {
+    expect(allTexts(en).length).toBeGreaterThan(50);
+    expect(bannedIn(allTexts(en))).toEqual([]);
+  });
+
+  it("would catch a promise", () => {
+    expect(bannedIn(["You will earn 10% a year"])).toHaveLength(1);
+    expect(bannedIn(["Returns are guaranteed."])).toHaveLength(1);
+    expect(bannedIn(["The expected result"])).toHaveLength(1);
+    expect(bannedIn(["A recommended fund"])).toHaveLength(1);
+    expect(bannedIn(["Real results can be lower."])).toEqual([]);
+  });
+});
