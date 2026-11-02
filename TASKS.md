@@ -20,14 +20,25 @@ Done when:
 
 ## Ready
 
-### T-017 · Three fixes when the budget is short · M
+### T-017 · Earliest date and three fixes when the budget is short · M
 
-What: When the budget falls short, three buttons offer a fix: save more each month, buy later, or aim for a lower price. Clicking one updates the form and the plan shows "on track".
+What: When the budget falls short, the plan also says the earliest month the goal is reached on that budget, for the selected growth rate. Three buttons offer a fix: save more each month, buy later (that earliest month), or aim for a lower price. Clicking one updates the form and the plan shows "on track".
 Done when:
 
-- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, growth 0% shows "Save ₸436,000", "Buy in June 2028" (20 months needed, starting October 2026) and "Aim for ₸8.20m" (what the budget can reach: ₸1,000,000 + 18 × ₸400,000).
+- Car ₸8,851,400, 18 months, savings ₸1,000,000, budget ₸400,000, growth 0% says "Short by ₸651,000 by April 2028. On this budget you'd reach it in June 2028." (20 months, starting October 2026).
+- The same car shows three fixes: "Save ₸436,000", "Buy in June 2028" and "Aim for ₸8.20m" (what the budget can reach: ₸1,000,000 + 18 × ₸400,000).
 - Clicking any of the three shows "on track".
-- If the goal cannot be reached within 360 months on this budget, only the "save more" fix is offered, with a message saying so.
+- If the goal cannot be reached within 360 months on this budget, no date is shown and only "save more" is offered, with a message saying so.
+- A test finds the earliest month for several examples, including growth above 0% and savings that already cover the goal.
+
+### T-030 · Pick a date or let the budget decide · M
+
+What: With a price and a monthly budget, the date becomes optional: leave it blank and the plan shows the earliest month the goal is reached on that budget. Builds on the earliest-month calculation from T-017.
+Done when:
+
+- Price ₸8,851,400, savings ₸1,000,000, budget ₸400,000, no date, growth 0% shows "You can buy in June 2028".
+- With no date and no budget, the form still asks for one of them.
+- A goal that cannot be reached within 360 months says so instead of showing a date.
 
 ### T-018 · Loan comparison · M
 
