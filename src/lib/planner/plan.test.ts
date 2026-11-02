@@ -3,9 +3,12 @@ import {
   addMonths,
   budgetCheck,
   budgetFixes,
+  buildBudgetPlan,
   buildPlan,
+  dateIsBlank,
   monthlyAtGrowth,
   monthsBetween,
+  monthsToGoal,
   parseAmount,
   parseBudget,
 } from "./plan";
@@ -300,5 +303,70 @@ describe("budgetFixes", () => {
     expect(
       budgetCheck({ ...plan, goalAmount: fixes.aimFor! }, rate, budget).kind,
     ).toBe("onTrack");
+  });
+});
+
+describe("dateIsBlank", () => {
+  it("is true only when both month and year are empty", () => {
+    expect(dateIsBlank("", "")).toBe(true);
+    expect(dateIsBlank("", "  ")).toBe(true);
+    expect(dateIsBlank("4", "")).toBe(false);
+    expect(dateIsBlank("", "2028")).toBe(false);
+  });
+});
+
+describe("buildBudgetPlan", () => {
+  it("reads the price and savings", () => {
+    expect(
+      buildBudgetPlan({ price: "8 851 400", savings: "1 000 000" }, 400_000),
+    ).toEqual({
+      goalAmount: 8_851_400,
+      saved: 1_000_000,
+      budget: 400_000,
+    });
+  });
+
+  it("treats blank savings as 0", () => {
+    expect(
+      buildBudgetPlan({ price: "100000", savings: "" }, 5_000)?.saved,
+    ).toBe(0);
+  });
+
+  it.each([
+    ["", "", "no price"],
+    ["abc", "", "price is not a number"],
+    ["5000", "", "price too low"],
+    ["100000", "-1", "negative savings"],
+  ])("gives no plan for %j / %j (%s)", (price, savings) => {
+    expect(buildBudgetPlan({ price, savings }, 5_000)).toBeNull();
+  });
+});
+
+describe("monthsToGoal", () => {
+  const carPlan = { goalAmount: 8_851_400, saved: 1_000_000, budget: 400_000 };
+
+  it("finds the earliest month for the car at 0%", () => {
+    const months = monthsToGoal(carPlan, 0);
+    expect(months).toBe(20);
+    expect(addMonths(today, months!)).toEqual({ year: 2028, month: 6 });
+  });
+
+  it("is sooner when the money grows", () => {
+    expect(monthsToGoal(carPlan, 0.1)!).toBeLessThan(20);
+  });
+
+  it("is 0 when the savings already cover the price", () => {
+    expect(monthsToGoal({ ...carPlan, saved: 10_000_000 }, 0)).toBe(0);
+  });
+
+  it("is null when the budget cannot reach the goal in 360 months", () => {
+    expect(monthsToGoal({ ...carPlan, budget: 1_000 }, 0)).toBeNull();
+  });
+
+  it("matches the 'buy later' fix for the same inputs", () => {
+    const short = { months: 18, goalAmount: 8_851_400, saved: 1_000_000 };
+    expect(budgetFixes(short, 0.1, 350_000, today).buyLater?.months).toBe(
+      monthsToGoal({ ...carPlan, budget: 350_000 }, 0.1),
+    );
   });
 });

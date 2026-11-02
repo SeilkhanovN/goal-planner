@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { type ReactNode, use, useState } from "react";
 import { io } from "next/cache";
 import { en as text } from "@/content/en";
 import {
@@ -12,11 +12,15 @@ import {
   groupDigits,
 } from "@/lib/planner/format";
 import {
+  addMonths,
   budgetCheck,
   budgetFixes,
+  buildBudgetPlan,
   buildPlan,
+  dateIsBlank,
   growthAdded,
   monthlyAtGrowth,
+  monthsToGoal,
   type Plan,
   type YearMonth,
   parseBudget,
@@ -129,6 +133,86 @@ export function PlannerForm() {
   const buyLater = fixes?.buyLater ?? null;
   const dateText = (date: YearMonth) =>
     `${planner.monthNames[date.month - 1]} ${date.year}`;
+
+  const budgetPlan =
+    budget.kind === "budget" && dateIsBlank(month, year)
+      ? buildBudgetPlan({ price, savings }, budget.value)
+      : null;
+  const budgetMonths = budgetPlan ? monthsToGoal(budgetPlan, growth) : null;
+
+  // The growth table, shared by both views; `renderRow` fills in each row.
+  const whatIfSection = (
+    renderRow: (rate: number, label: string) => ReactNode,
+  ) => (
+    <>
+      <h3 className="mt-4 text-lg font-semibold">{planner.whatIf.title}</h3>
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        {planner.whatIf.pickHint}
+      </p>
+      <ul className="flex flex-col gap-2">
+        {WHAT_IF_RATES.map((rate) => (
+          <li key={rate}>
+            <button
+              type="button"
+              aria-pressed={!useOwn && rate === selectedPreset}
+              onClick={() => {
+                setSelectedPreset(rate);
+                setOwnSelected(false);
+              }}
+              className={rowClass(!useOwn && rate === selectedPreset)}
+            >
+              {renderRow(
+                rate,
+                planner.whatIf.rowLabel(formatPercent(rate)) +
+                  (rate === 0 ? ` (${planner.whatIf.cashHint})` : ""),
+              )}
+            </button>
+          </li>
+        ))}
+        {ownRate !== null && (
+          <li>
+            <button
+              type="button"
+              aria-pressed={useOwn}
+              onClick={() => setOwnSelected(true)}
+              className={rowClass(useOwn)}
+            >
+              {renderRow(
+                ownRate,
+                planner.whatIf.ownRowLabel(formatPercent(ownRate)),
+              )}
+            </button>
+          </li>
+        )}
+      </ul>
+      <div>
+        <label htmlFor="own-rate" className="mb-1 block font-medium">
+          {planner.whatIf.ownRateLabel}
+        </label>
+        <input
+          id="own-rate"
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          className={`${inputClass} w-40`}
+          placeholder={planner.whatIf.ownRatePlaceholder}
+          value={ownText}
+          onChange={(event) => {
+            setOwnText(event.target.value);
+            if (parseGrowthRate(event.target.value).kind === "rate") {
+              setOwnSelected(true);
+            }
+          }}
+          aria-invalid={ownError ? true : undefined}
+          aria-describedby={ownError ? "own-rate-error" : undefined}
+        />
+        <FieldError id="own-rate-error" message={ownError || undefined} />
+      </div>
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        {planner.whatIf.notForecast}
+      </p>
+    </>
+  );
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
@@ -401,78 +485,59 @@ export function PlannerForm() {
               </>
             )}
 
-            <h3 className="mt-4 text-lg font-semibold">
-              {planner.whatIf.title}
-            </h3>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {planner.whatIf.pickHint}
+            {whatIfSection((rate, label) => (
+              <RowText label={label} plan={plan} rate={rate} />
+            ))}
+          </>
+        ) : budgetPlan ? (
+          <>
+            <p className="text-3xl font-semibold tracking-tight">
+              {budgetMonths === null
+                ? planner.budgetCheck.neverReached
+                : budgetMonths === 0
+                  ? planner.budgetMode.canBuyNow
+                  : planner.budgetMode.canBuyIn(
+                      dateText(addMonths(today, budgetMonths)),
+                    )}
             </p>
-            <ul className="flex flex-col gap-2">
-              {WHAT_IF_RATES.map((rate) => (
-                <li key={rate}>
+            {budgetMonths !== null && budgetMonths > 0 && (
+              <>
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  {planner.budgetMode.saving(
+                    formatMonthly(budgetPlan.budget),
+                    planner.monthsAway(budgetMonths),
+                  )}
+                </p>
+                <div>
                   <button
                     type="button"
-                    aria-pressed={!useOwn && rate === selectedPreset}
+                    className={fixButtonClass}
                     onClick={() => {
-                      setSelectedPreset(rate);
-                      setOwnSelected(false);
+                      const date = addMonths(today, budgetMonths);
+                      setMonth(String(date.month));
+                      setYear(String(date.year));
                     }}
-                    className={rowClass(!useOwn && rate === selectedPreset)}
                   >
-                    <RowText
-                      label={
-                        planner.whatIf.rowLabel(formatPercent(rate)) +
-                        (rate === 0 ? ` (${planner.whatIf.cashHint})` : "")
-                      }
-                      plan={plan}
-                      rate={rate}
-                    />
+                    {planner.budgetMode.useDate}
                   </button>
-                </li>
-              ))}
-              {ownRate !== null && (
-                <li>
-                  <button
-                    type="button"
-                    aria-pressed={useOwn}
-                    onClick={() => setOwnSelected(true)}
-                    className={rowClass(useOwn)}
-                  >
-                    <RowText
-                      label={planner.whatIf.ownRowLabel(formatPercent(ownRate))}
-                      plan={plan}
-                      rate={ownRate}
-                    />
-                  </button>
-                </li>
-              )}
-            </ul>
-            <div>
-              <label htmlFor="own-rate" className="mb-1 block font-medium">
-                {planner.whatIf.ownRateLabel}
-              </label>
-              <input
-                id="own-rate"
-                type="text"
-                inputMode="decimal"
-                autoComplete="off"
-                className={`${inputClass} w-40`}
-                placeholder={planner.whatIf.ownRatePlaceholder}
-                value={ownText}
-                onChange={(event) => {
-                  setOwnText(event.target.value);
-                  if (parseGrowthRate(event.target.value).kind === "rate") {
-                    setOwnSelected(true);
-                  }
-                }}
-                aria-invalid={ownError ? true : undefined}
-                aria-describedby={ownError ? "own-rate-error" : undefined}
-              />
-              <FieldError id="own-rate-error" message={ownError || undefined} />
-            </div>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {planner.whatIf.notForecast}
-            </p>
+                </div>
+              </>
+            )}
+            {whatIfSection((rate, label) => {
+              const months = monthsToGoal(budgetPlan, rate);
+              return (
+                <>
+                  <span>{label}</span>
+                  <span className="font-medium">
+                    {months === null
+                      ? planner.budgetMode.notWithin
+                      : months === 0
+                        ? planner.budgetMode.now
+                        : dateText(addMonths(today, months))}
+                  </span>
+                </>
+              );
+            })}
           </>
         ) : (
           <p className="text-zinc-600 dark:text-zinc-400">{planner.planHint}</p>

@@ -68,7 +68,16 @@ export const en = {
       },
     },
     planTitle: "Your plan",
-    planHint: "Enter a price and a date.",
+    planHint: "Enter a price and a date, or a monthly budget.",
+    budgetMode: {
+      canBuyIn: (date: string) => `You can buy in ${date}`,
+      canBuyNow: "Your savings already cover the goal. You can buy now.",
+      saving: (amount: string, months: string) =>
+        `Saving ${amount} a month for ${months}.`,
+      now: "Now",
+      useDate: "Use this date",
+      notWithin: "Not within 30 years",
+    },
     goalByDate: (amount: string, goal: string, date: string) =>
       `To reach ${amount} for ${goal} by ${date}`,
     saveMonthly: (amount: string) => `Save ${amount} a month`,

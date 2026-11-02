@@ -20,15 +20,6 @@ Done when:
 
 ## Ready
 
-### T-030 · Pick a date or let the budget decide · M
-
-What: With a price and a monthly budget, the date becomes optional: leave it blank and the plan shows the earliest month the goal is reached on that budget. Builds on the earliest-month calculation from T-017.
-Done when:
-
-- Price ₸8,851,400, savings ₸1,000,000, budget ₸400,000, no date, growth 0% shows "You can buy in June 2028".
-- With no date and no budget, the form still asks for one of them.
-- A goal that cannot be reached within 360 months says so instead of showing a date.
-
 ### T-018 · Loan comparison · M
 
 What: A card compares with buying today using a bank loan over the same number of months, with savings as the down payment. It shows the monthly payment and total interest (riba), worded respectfully ("a loan would cost ₸1.47m more"). The loan rate starts at 25%, a placeholder kept in one place until real bank offers are collected, and can be edited.
@@ -102,6 +93,9 @@ Done when:
 - The month count can shift if a tab stays open across the end of a month.
 - Optional "price rise a year (%)" field, left at 0: the plan saves for the higher price at the date and shows both prices (₸10,000,000 in 20 months at 8% a year: about ₸11.37m at the date and about ₸568,000 a month with no growth).
 - The purchase date text ("April 2028") is built in two places in the planner form; build it once.
+- With no date, a budget and an invalid price, the plan panel only shows the generic hint; say what to fix.
+- The earliest-month search (up to 360 checks per growth row, on every keystroke) could use a closed form or a binary search.
+- "You can buy in <month>" can be up to ₸500 short, because the earliest month uses the same ₸500 tolerance as the budget check.
 
 ## Waiting for the financist
 
@@ -183,3 +177,4 @@ Done when:
 - T-011 · Goal type buttons (2026-11-02): seven goal buttons (car, Hajj or Umrah, wedding, home deposit, education, emergency fund, other) sit above the form, car selected at the start, and the plan wording follows the chosen goal.
 - T-016 · Monthly budget check (2026-11-02): an optional monthly budget field; the plan says "On track" (with the surplus when savings cover the goal) or "Short by X by <date>" for the picked growth rate.
 - T-017 · Earliest date and three fixes when the budget is short (2026-11-02): a short budget now shows the earliest month it reaches the goal, plus "Save more", "Buy in <month>" and "Aim for <price>" buttons that each put the plan on track.
+- T-030 · Pick a date or let the budget decide (2026-11-02): with the date left blank, a monthly budget gives the earliest month the goal is reached ("You can buy in June 2028"), with a "Use this date" button and a growth table of dates.

@@ -138,6 +138,21 @@ export function addMonths(from: YearMonth, count: number): YearMonth {
   return { year: Math.floor(total / 12), month: (total % 12) + 1 };
 }
 
+/** First month, from `from` on, in which the budget covers the goal. Null if none within 360 months. */
+function earliestMonths(
+  plan: Pick<Plan, "goalAmount" | "saved">,
+  rate: number,
+  budget: number,
+  from: number,
+): number | null {
+  for (let months = from; months <= MAX_MONTHS; months++) {
+    if (budgetCheck({ ...plan, months }, rate, budget).kind === "onTrack") {
+      return months;
+    }
+  }
+  return null;
+}
+
 export type BudgetFixes = {
   /** Monthly amount, rounded up to ₸1,000, that makes the plan on track. */
   saveMore: number;
@@ -159,13 +174,9 @@ export function budgetFixes(
 ): BudgetFixes {
   const saveMore = Math.ceil(monthlyAtGrowth(plan, rate) / 1000) * 1000;
 
-  let buyLater: BudgetFixes["buyLater"] = null;
-  for (let months = plan.months + 1; months <= MAX_MONTHS; months++) {
-    if (budgetCheck({ ...plan, months }, rate, budget).kind === "onTrack") {
-      buyLater = { months, date: addMonths(today, months) };
-      break;
-    }
-  }
+  const later = earliestMonths(plan, rate, budget, plan.months + 1);
+  const buyLater =
+    later === null ? null : { months: later, date: addMonths(today, later) };
   if (buyLater === null) return { saveMore, buyLater, aimFor: null };
 
   const reachable =
@@ -173,6 +184,34 @@ export function budgetFixes(
     budget * depositsGrowth(plan.months, rate);
   const aim = Math.floor(reachable / 1000) * 1000;
   return { saveMore, buyLater, aimFor: aim >= MIN_PRICE ? aim : null };
+}
+
+/** The date fields are both empty, so a monthly budget can pick the date. */
+export function dateIsBlank(month: string, year: string): boolean {
+  return month.trim() === "" && year.trim() === "";
+}
+
+/** A goal with no date: the budget decides when it can be reached. */
+export type BudgetPlan = { goalAmount: number; saved: number; budget: number };
+
+/** Null until the price and savings are valid. Their errors come from `buildPlan`. */
+export function buildBudgetPlan(
+  input: Pick<PlannerInput, "price" | "savings">,
+  budget: number,
+): BudgetPlan | null {
+  const { errors, price, savings } = readAmounts(input);
+  if (Object.keys(errors).length > 0 || price.kind !== "number") return null;
+  return {
+    goalAmount: price.value,
+    saved: savings.kind === "number" ? savings.value : 0,
+    budget,
+  };
+}
+
+/** Months until the goal is reached on the budget: 0 if savings cover it, null if not within 360 months. */
+export function monthsToGoal(plan: BudgetPlan, rate: number): number | null {
+  if (plan.saved >= plan.goalAmount) return 0;
+  return earliestMonths(plan, rate, plan.budget, 1);
 }
 
 /** No errors and no plan means the form is still waiting for a price or a date. */
@@ -209,11 +248,8 @@ export function monthsBetween(from: YearMonth, to: YearMonth): number {
   return (to.year - from.year) * 12 + (to.month - from.month);
 }
 
-export function buildPlan(
-  input: PlannerInput,
-  today: YearMonth,
-  growth = 0,
-): PlannerResult {
+/** Reads and checks the price and savings fields. */
+function readAmounts(input: Pick<PlannerInput, "price" | "savings">) {
   const errors: PlannerErrors = {};
 
   const price = parseAmount(input.price);
@@ -229,6 +265,16 @@ export function buildPlan(
   else if (savings.kind === "number" && savings.value < 0) {
     errors.savings = "negative";
   }
+
+  return { errors, price, savings };
+}
+
+export function buildPlan(
+  input: PlannerInput,
+  today: YearMonth,
+  growth = 0,
+): PlannerResult {
+  const { errors, price, savings } = readAmounts(input);
 
   const month = Number(input.month);
   const yearText = input.year.trim();

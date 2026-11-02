@@ -23,6 +23,24 @@ describe("budget check texts", () => {
   });
 });
 
+describe("budget mode texts", () => {
+  it("words each outcome", () => {
+    const { budgetMode } = en.planner;
+    expect(budgetMode.canBuyIn("June 2028")).toBe("You can buy in June 2028");
+    expect(budgetMode.canBuyNow).toBe(
+      "Your savings already cover the goal. You can buy now.",
+    );
+    expect(budgetMode.saving("₸400,000", "20 months")).toBe(
+      "Saving ₸400,000 a month for 20 months.",
+    );
+    expect(budgetMode.useDate).toBe("Use this date");
+    expect(budgetMode.notWithin).toBe("Not within 30 years");
+    expect(en.planner.planHint).toBe(
+      "Enter a price and a date, or a monthly budget.",
+    );
+  });
+});
+
 describe("goal types", () => {
   it("has the seven goals, car first", () => {
     expect(en.planner.goals.map((goal) => goal.id)).toEqual([
