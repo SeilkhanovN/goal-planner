@@ -6,6 +6,20 @@ export const en = {
   },
   planner: {
     title: "Plan your goal",
+    goalTypeLabel: "What are you saving for?",
+    goals: [
+      { id: "car", button: "Car", forPhrase: "the car" },
+      { id: "hajj", button: "Hajj or Umrah", forPhrase: "Hajj or Umrah" },
+      { id: "wedding", button: "Wedding", forPhrase: "the wedding" },
+      { id: "home", button: "Home deposit", forPhrase: "the home deposit" },
+      { id: "education", button: "Education", forPhrase: "education" },
+      {
+        id: "emergency",
+        button: "Emergency fund",
+        forPhrase: "the emergency fund",
+      },
+      { id: "other", button: "Other", forPhrase: "your goal" },
+    ],
     priceLabel: "Price today (₸)",
     pricePlaceholder: "8 850 000",
     dateLabel: "When to buy",
@@ -49,8 +63,8 @@ export const en = {
     },
     planTitle: "Your plan",
     planHint: "Enter a price and a date.",
-    goalByDate: (amount: string, date: string) =>
-      `To reach ${amount} by ${date}`,
+    goalByDate: (amount: string, goal: string, date: string) =>
+      `To reach ${amount} for ${goal} by ${date}`,
     saveMonthly: (amount: string) => `Save ${amount} a month`,
     alreadyCovered: "Savings already cover the goal.",
     breakdown: (monthly: string, months: string, total: string) =>

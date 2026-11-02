@@ -20,15 +20,6 @@ Done when:
 
 ## Ready
 
-### T-011 · Goal type buttons · S
-
-What: Seven buttons at the top of the form: car, Hajj or Umrah, wedding, home deposit, education, emergency fund and other. The chosen goal changes the wording of the plan.
-Done when:
-
-- All seven buttons show, with car selected at the start.
-- Picking one changes the wording of the plan, for example "To reach ₸8.85m for the car by April 2028" becomes "…for the wedding…".
-- The wording for each goal comes from the text file.
-
 ### T-016 · Monthly budget check · M
 
 What: An optional monthly budget field. With a budget, the plan says "on track" or "short by X" for the selected growth rate. When savings already cover the goal it says on track and shows the surplus.
@@ -197,3 +188,4 @@ Done when:
 - T-027 · Year dropdown (2026-10-25): the year is now a dropdown from this year to 30 years ahead, like the month.
 - T-028 · How much the growth adds in each row (2026-10-25): each growth row also shows how much of the goal the growth covers, as an amount and a share (for example ₸736,000, 7% at 10% a year).
 - T-029 · Shorter texts (2026-10-25): the home and planner texts are about a third shorter (124 to 84 words in the 10% example), with the two long "this plan assumes" sentences replaced by one note.
+- T-011 · Goal type buttons (2026-11-02): seven goal buttons (car, Hajj or Umrah, wedding, home deposit, education, emergency fund, other) sit above the form, car selected at the start, and the plan wording follows the chosen goal.

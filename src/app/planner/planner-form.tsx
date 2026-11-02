@@ -77,6 +77,10 @@ export function PlannerForm() {
   const now = new Date();
   const today = { year: now.getFullYear(), month: now.getMonth() + 1 };
 
+  const [goalId, setGoalId] = useState<string>(planner.goals[0].id);
+  const goal =
+    planner.goals.find((item) => item.id === goalId) ?? planner.goals[0];
+
   const [price, setPrice] = useState("");
   const [savings, setSavings] = useState("");
   const [month, setMonth] = useState("");
@@ -110,6 +114,29 @@ export function PlannerForm() {
         onSubmit={(event) => event.preventDefault()}
         noValidate
       >
+        <div role="group" aria-labelledby="goal-type-label">
+          <p id="goal-type-label" className="mb-1 font-medium">
+            {planner.goalTypeLabel}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {planner.goals.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={item.id === goalId}
+                onClick={() => setGoalId(item.id)}
+                className={`rounded-lg border px-3 py-2 ${
+                  item.id === goalId
+                    ? "border-foreground bg-foreground/10"
+                    : "border-zinc-300 hover:bg-foreground/5 dark:border-zinc-700"
+                }`}
+              >
+                {item.button}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div>
           <label htmlFor="price" className="mb-1 block font-medium">
             {planner.priceLabel}
@@ -214,6 +241,7 @@ export function PlannerForm() {
             <p className="text-zinc-600 dark:text-zinc-400">
               {planner.goalByDate(
                 formatTotal(plan.goalAmount),
+                goal.forPhrase,
                 `${planner.monthNames[Number(month) - 1]} ${year.trim()}`,
               )}
             </p>
