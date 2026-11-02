@@ -148,6 +148,62 @@ export const en = {
       illustrations:
         "These figures are illustrations, not forecasts. Real results can be lower, including losses.",
     },
+    howLink: "How we calculate",
     loading: "Loading…",
+  },
+  howWeCalculate: {
+    title: "How we calculate",
+    backToPlanner: "Back to the planner",
+    sections: [
+      {
+        id: "idea",
+        heading: "The idea",
+        paragraphs: [
+          "The monthly amount is what you put aside at the end of each month so that, on your date, you have the price.",
+        ],
+      },
+      {
+        id: "example",
+        heading: "An example",
+        paragraphs: [
+          "Say a goal costs ₸10,000,000 and you want it in 20 months, with nothing saved yet.",
+          "With no growth, you save ₸10,000,000 ÷ 20 = ₸500,000 a month.",
+          "If your money grows by 10% a year, you need about ₸463,000 a month. The growth does part of the work: about ₸736,000 of the ₸10,000,000 comes from growth, and the rest from your deposits.",
+        ],
+      },
+      {
+        id: "inputs",
+        heading: "What goes in",
+        paragraphs: [
+          "The price today, the months until your date, what you have already saved and the yearly growth you assume.",
+          "Money already saved grows from the start. Each deposit is made at the end of a month and grows from then on. Growth is spread evenly over the months, so 10% a year is a little under 0.8% a month.",
+          "Prices are assumed not to rise, so the goal stays the same amount until your date.",
+        ],
+      },
+      {
+        id: "growth",
+        heading: "The growth table",
+        paragraphs: [
+          "The rows show how the monthly amount changes at different yearly growth rates, from −10% to 20%, and you can add your own. They are examples to compare, not forecasts. Real results can be lower, including losses.",
+        ],
+      },
+      {
+        id: "budget",
+        heading: "Your monthly budget",
+        paragraphs: [
+          "If you enter a budget, we compare it with the monthly amount. If it is smaller, the gap is how much would be missing on your date when you save only your budget each month.",
+          "The earliest month is the first month in which your budget, saved every month, reaches the price. Leave the date empty and we show that month.",
+        ],
+      },
+      {
+        id: "loan",
+        heading: "The loan comparison",
+        paragraphs: [
+          "The loan card shows what buying today with a bank loan would cost. Your savings are the down payment, and the rest is borrowed over the same number of months. The bank is paid back in equal monthly payments, and the interest is everything paid back above the amount borrowed.",
+          "For ₸10,000,000 over 20 months at 25% a year, that is about ₸604,000 a month and ₸2.09m of interest (riba).",
+          "The 25% is a placeholder until real bank offers are collected. It is an effective yearly rate: the cost over a full year, including compounding. A bank may quote a different rate for the same loan, so a real payment can differ.",
+        ],
+      },
+    ],
   },
 };

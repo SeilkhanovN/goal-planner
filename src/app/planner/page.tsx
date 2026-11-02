@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { en as text } from "@/content/en";
 import { PlannerForm } from "./planner-form";
@@ -17,6 +18,14 @@ export default function Planner() {
       >
         <PlannerForm />
       </Suspense>
+      <p className="mt-12">
+        <Link
+          href="/how-we-calculate"
+          className="text-sm font-medium underline underline-offset-4"
+        >
+          {text.planner.howLink}
+        </Link>
+      </p>
     </main>
   );
 }

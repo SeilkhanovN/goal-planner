@@ -30,15 +30,6 @@ Done when:
 - Bad or edited values in a link show the same errors as typed values and never crash the page.
 - A test builds a link and reads it back for several example goals and gets the same inputs.
 
-### T-023 · "How we calculate" page · M
-
-What: A page linked from the bottom of the planner explains the method in plain words: how a monthly amount follows from the price, the months, what you have saved and the growth you assume. It says the growth rates are examples, not forecasts.
-Done when:
-
-- The planner links to the page.
-- It explains the method with an example: ₸10,000,000 in 20 months needs ₸500,000 a month at 0% and about ₸463,000 at 10% a year.
-- It explains the loan comparison and repeats the disclaimer from T-019.
-
 ### T-024 · Accessibility and speed pass · M
 
 What: Make the site usable with a keyboard and a screen reader and fast on an ordinary laptop.
@@ -164,3 +155,4 @@ Done when:
 - T-030 · Pick a date or let the budget decide (2026-11-02): with the date left blank, a monthly budget gives the earliest month the goal is reached ("You can buy in June 2028"), with a "Use this date" button and a growth table of dates.
 - T-019 · Disclaimer and wording check (2026-11-02): every result shows "Information, not investment advice or a fatwa" and "These figures are illustrations, not forecasts…", and a test fails if any text says "you will earn", "guaranteed", "expected" or "recommended".
 - T-018 · Loan comparison (2026-11-02): a card shows the monthly payment and total interest (riba) of a bank loan for the same goal, with savings as the down payment, an editable loan rate starting at 25%, and "no loan needed" when savings cover the price.
+- T-023 · "How we calculate" page (2026-11-02): a plain-words page at /how-we-calculate, linked from the bottom of the planner, explains the method with the ₸10m example, the budget check, the loan comparison and the disclaimer; a test keeps its figures in step with the real maths.
