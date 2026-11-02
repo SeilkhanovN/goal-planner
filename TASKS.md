@@ -20,16 +20,6 @@ Done when:
 
 ## Ready
 
-### T-020 · Copy link to this plan · M
-
-What: A "Copy link to this plan" button creates a link holding all the inputs, including the chosen growth rate. Opening it on another computer rebuilds the same form and plan. Nothing is stored on a server.
-Done when:
-
-- A copied link opened in a new window shows the same form and identical numbers (for example the ₸10,000,000 in 20 months example at 10%).
-- The link carries a format version number so old links can keep working later.
-- Bad or edited values in a link show the same errors as typed values and never crash the page.
-- A test builds a link and reads it back for several example goals and gets the same inputs.
-
 ### T-024 · Accessibility and speed pass · M
 
 What: Make the site usable with a keyboard and a screen reader and fast on an ordinary laptop.
