@@ -20,15 +20,6 @@ Done when:
 
 ## Ready
 
-### T-024 · Accessibility and speed pass · M
-
-What: Make the site usable with a keyboard and a screen reader and fast on an ordinary laptop.
-Done when:
-
-- Every field has a label, every button works with the keyboard, and errors are read out by screen readers.
-- An automated accessibility scan finds no WCAG 2.1 AA problems on the home, planner and how-we-calculate pages.
-- Results appear within 200 ms of a change, with the measurement reported.
-
 ### T-025 · Product name and look and feel · L
 
 What: Together we decide the product name and visual style, then apply them across the site at screen widths of 1024 px and wider, with the form and plan side by side.
@@ -52,7 +43,6 @@ Done when:
 - Phone layout where the form and plan stack.
 - A comma typed as a decimal mark (for example "1,5") is read as a thousands separator; decide how to treat commas.
 - The planner form is not in the first page the server sends, only "Loading…" until the browser starts it; show the form straight away.
-- Group the month and year fields under one label for screen readers (covered by T-024).
 - The month count can shift if a tab stays open across the end of a month.
 - Optional "price rise a year (%)" field, left at 0: the plan saves for the higher price at the date and shows both prices (₸10,000,000 in 20 months at 8% a year: about ₸11.37m at the date and about ₸568,000 a month with no growth).
 - The purchase date text ("April 2028") is built in two places in the planner form; build it once.
@@ -61,6 +51,8 @@ Done when:
 - "You can buy in <month>" can be up to ₸500 short, because the earliest month uses the same ₸500 tolerance as the budget check.
 - The loan rate is an effective yearly rate (it gives the T-018 numbers), but banks often quote a nominal rate (rate ÷ 12 a month); label which one the field means, or offer both.
 - Show the loan comparison in the "budget picks the date" view too, using the months to the goal.
+- Run `npm run a11y` in the GitHub checks too (Chrome is on the runners); it is slower than the other checks, so decide first.
+- Test the planner with a real screen reader (NVDA or VoiceOver); the axe scan finds only part of the problems.
 
 ## Waiting for the financist
 
@@ -146,3 +138,4 @@ Done when:
 - T-019 · Disclaimer and wording check (2026-11-02): every result shows "Information, not investment advice or a fatwa" and "These figures are illustrations, not forecasts…", and a test fails if any text says "you will earn", "guaranteed", "expected" or "recommended".
 - T-018 · Loan comparison (2026-11-02): a card shows the monthly payment and total interest (riba) of a bank loan for the same goal, with savings as the down payment, an editable loan rate starting at 25%, and "no loan needed" when savings cover the price.
 - T-023 · "How we calculate" page (2026-11-02): a plain-words page at /how-we-calculate, linked from the bottom of the planner, explains the method with the ₸10m example, the budget check, the loan comparison and the disclaimer; a test keeps its figures in step with the real maths.
+- T-024 · Accessibility and speed pass (2026-11-02): `npm run a11y` scans every page and planner state with axe (WCAG 2.1 AA, light and dark) and times updates (about 33 ms, the limit is 200 ms); month and year are grouped under one label, errors announce themselves, only the headline result is a live region, and keyboard focus has a clear outline.

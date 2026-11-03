@@ -15,6 +15,7 @@ npm run dev     # dev server at http://localhost:3000
 npm run build   # production build (also runs the TypeScript check)
 npm run lint    # ESLint (flat config, eslint-config-next core-web-vitals + typescript)
 npm test        # Vitest, single run (vitest run)
+npm run a11y   # builds, then scans the pages with axe (WCAG 2.1 AA), checks the form markup and times updates in Chrome (needs Chrome or Edge; not part of `npm run check`)
 npx vitest run src/lib/engine/savings.test.ts   # one test file
 npx vitest run -t "single month"                # tests whose name matches
 ```

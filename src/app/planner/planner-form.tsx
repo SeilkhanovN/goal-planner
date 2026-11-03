@@ -157,7 +157,11 @@ function LoanCard({
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} className="mt-1 text-sm text-red-600 dark:text-red-400">
+    <p
+      id={id}
+      role="alert"
+      className="mt-1 text-sm text-red-600 dark:text-red-400"
+    >
       {message}
     </p>
   );
@@ -348,10 +352,10 @@ export function PlannerForm() {
           <FieldError id="price-error" message={priceError} />
         </div>
 
-        <div>
-          <label htmlFor="month" className="mb-1 block font-medium">
+        <div role="group" aria-labelledby="date-label">
+          <p id="date-label" className="mb-1 font-medium">
             {planner.dateLabel}
-          </label>
+          </p>
           <div className="flex gap-3">
             <select
               id="month"
@@ -445,40 +449,70 @@ export function PlannerForm() {
         </div>
       </form>
 
-      <section aria-live="polite" className="flex flex-col gap-4">
+      <section className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold">{planner.planTitle}</h2>
+        <div role="status" className="flex flex-col gap-4">
+          {plan ? (
+            <>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                {planner.goalByDate(
+                  formatTotal(plan.goalAmount),
+                  goal.forPhrase,
+                  `${planner.monthNames[Number(month) - 1]} ${year.trim()}`,
+                )}
+              </p>
+              <p className="text-3xl font-semibold tracking-tight">
+                {planner.saveMonthly(formatMonthly(plan.monthlySaving))}
+              </p>
+              {check && (
+                <p
+                  className={`font-medium ${
+                    check.kind === "short"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-green-700 dark:text-green-400"
+                  }`}
+                >
+                  {check.kind === "short"
+                    ? planner.budgetCheck.shortBy(
+                        formatTotal(check.shortBy),
+                        `${planner.monthNames[Number(month) - 1]} ${year.trim()}`,
+                      )
+                    : check.surplus !== undefined
+                      ? planner.budgetCheck.onTrackSpare(
+                          formatTotal(check.surplus),
+                        )
+                      : planner.budgetCheck.onTrack}
+                </p>
+              )}
+            </>
+          ) : budgetPlan ? (
+            <>
+              <p className="text-3xl font-semibold tracking-tight">
+                {budgetMonths === null
+                  ? planner.budgetCheck.neverReached
+                  : budgetMonths === 0
+                    ? planner.budgetMode.canBuyNow
+                    : planner.budgetMode.canBuyIn(
+                        dateText(addMonths(today, budgetMonths)),
+                      )}
+              </p>
+              {budgetMonths !== null && budgetMonths > 0 && (
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  {planner.budgetMode.saving(
+                    formatMonthly(budgetPlan.budget),
+                    planner.monthsAway(budgetMonths),
+                  )}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-zinc-600 dark:text-zinc-400">
+              {planner.planHint}
+            </p>
+          )}
+        </div>
         {plan ? (
           <>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              {planner.goalByDate(
-                formatTotal(plan.goalAmount),
-                goal.forPhrase,
-                `${planner.monthNames[Number(month) - 1]} ${year.trim()}`,
-              )}
-            </p>
-            <p className="text-3xl font-semibold tracking-tight">
-              {planner.saveMonthly(formatMonthly(plan.monthlySaving))}
-            </p>
-            {check && (
-              <p
-                className={`font-medium ${
-                  check.kind === "short"
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-700 dark:text-green-400"
-                }`}
-              >
-                {check.kind === "short"
-                  ? planner.budgetCheck.shortBy(
-                      formatTotal(check.shortBy),
-                      `${planner.monthNames[Number(month) - 1]} ${year.trim()}`,
-                    )
-                  : check.surplus !== undefined
-                    ? planner.budgetCheck.onTrackSpare(
-                        formatTotal(check.surplus),
-                      )
-                    : planner.budgetCheck.onTrack}
-              </p>
-            )}
             {fixes && (
               <div className="flex flex-col gap-3">
                 <p className="text-zinc-600 dark:text-zinc-400">
@@ -581,37 +615,20 @@ export function PlannerForm() {
           </>
         ) : budgetPlan ? (
           <>
-            <p className="text-3xl font-semibold tracking-tight">
-              {budgetMonths === null
-                ? planner.budgetCheck.neverReached
-                : budgetMonths === 0
-                  ? planner.budgetMode.canBuyNow
-                  : planner.budgetMode.canBuyIn(
-                      dateText(addMonths(today, budgetMonths)),
-                    )}
-            </p>
             {budgetMonths !== null && budgetMonths > 0 && (
-              <>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  {planner.budgetMode.saving(
-                    formatMonthly(budgetPlan.budget),
-                    planner.monthsAway(budgetMonths),
-                  )}
-                </p>
-                <div>
-                  <button
-                    type="button"
-                    className={fixButtonClass}
-                    onClick={() => {
-                      const date = addMonths(today, budgetMonths);
-                      setMonth(String(date.month));
-                      setYear(String(date.year));
-                    }}
-                  >
-                    {planner.budgetMode.useDate}
-                  </button>
-                </div>
-              </>
+              <div>
+                <button
+                  type="button"
+                  className={fixButtonClass}
+                  onClick={() => {
+                    const date = addMonths(today, budgetMonths);
+                    setMonth(String(date.month));
+                    setYear(String(date.year));
+                  }}
+                >
+                  {planner.budgetMode.useDate}
+                </button>
+              </div>
             )}
             {whatIfSection((rate, label) => {
               const months = monthsToGoal(budgetPlan, rate);
@@ -629,9 +646,7 @@ export function PlannerForm() {
               );
             })}
           </>
-        ) : (
-          <p className="text-zinc-600 dark:text-zinc-400">{planner.planHint}</p>
-        )}
+        ) : null}
         {(plan || budgetPlan) && (
           <div className="mt-2 flex flex-col gap-1 border-t border-zinc-300 pt-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
             <p className="font-medium">{planner.disclaimer.notAdvice}</p>
